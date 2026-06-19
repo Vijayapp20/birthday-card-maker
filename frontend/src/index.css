@@ -1,0 +1,37 @@
+:root {
+  --primary-font: 'Poppins', sans-serif;
+  --secondary-font: 'Pacifico', cursive;
+  --theme-gradient: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root { width: 100%; height: 100%; }
+
+body {
+  background: #0a0a0a;
+  font-family: var(--primary-font);
+  overflow-x: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* SweetAlert2 dark glass */
+.swal2-popup {
+  background: rgba(15,15,15,0.92) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 20px !important;
+  color: #fff !important;
+}
+.swal2-title { color: #fff !important; font-family: var(--primary-font) !important; }
+.swal2-html-container { color: #ddd !important; }
+.swal2-confirm {
+  background: var(--theme-gradient) !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+}
+.swal2-cancel { background: #555 !important; border-radius: 20px !important; font-weight: 700 !important; }
+.swal2-timer-progress-bar { background: var(--theme-gradient) !important; }
