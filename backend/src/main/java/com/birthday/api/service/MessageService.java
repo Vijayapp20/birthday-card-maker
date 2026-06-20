@@ -29,7 +29,7 @@ public class MessageService {
             Write a sincere, emotional, and uplifting birthday message with these details:
             - Recipient's Name: %s
             - Sender's Name: %s
-            - Relationship: %s (the sender is the recipient's %s)
+            - Relationship: %s (the recipient is the sender's %s)
             
             Requirements:
             - Make it personal using both names
