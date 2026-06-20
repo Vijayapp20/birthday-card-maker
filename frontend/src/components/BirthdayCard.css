@@ -182,12 +182,12 @@
 }
 
 /* Branding */
-.rahul-branding {
-  position: fixed; bottom: 15px; left: 0; right: 0;
-  text-align: center; font-size: 14px;
+.footer-card {
+  position: fixed; bottom: 15px; left: 0; right: 5px;
+  text-align: right; font-size: 14px;
   z-index: 9999; pointer-events: none; color: #fff;
 }
-.rahul-branding span { color: #ff0000; }
+.footer-card span { color: #ff0000; }
 
 .music-toggle, .share-toggle, .back-toggle {
   position: fixed;

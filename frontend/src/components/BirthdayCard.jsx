@@ -363,7 +363,7 @@ export default function BirthdayCard({ cardData, onBack }) {
       )}
 
       {/* Branding */}
-      <div className="rahul-branding">
+      <div className="footer-card">
         <b>made with ❤️ by <span>@vijayprasanth</span></b>
       </div>
     </div>
