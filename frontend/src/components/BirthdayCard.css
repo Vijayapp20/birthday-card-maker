@@ -138,6 +138,20 @@
 
 /* Final */
 .bq { text-align: center; color: #fff; width: 100%; padding: 0 10px; animation: float 3s ease-in-out infinite; }
+.final-heart-photo {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 20px;
+  clip-path: path('M90 170 C10 110, 0 70, 0 45 C0 18, 22 0, 47 0 C66 0, 82 11, 90 28 C98 11, 114 0, 133 0 C158 0, 180 18, 180 45 C180 70, 170 110, 90 170 Z');
+  -webkit-clip-path: path('M90 170 C10 110, 0 70, 0 45 C0 18, 22 0, 47 0 C66 0, 82 11, 90 28 C98 11, 114 0, 133 0 C158 0, 180 18, 180 45 C180 70, 170 110, 90 170 Z');
+  box-shadow: 0 8px 24px rgba(255,42,95,0.45);
+  animation: float 2.5s ease-in-out infinite alternate;
+}
+.final-heart-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .teksnim {
   font-family: var(--secondary-font);
   font-size: 32px; color: #ffeb3b; margin-bottom: 12px;

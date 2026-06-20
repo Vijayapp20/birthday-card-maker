@@ -90,8 +90,10 @@ export default function BirthdayCard({ cardData, onBack }) {
   const heartIdRef    = useRef(0)
   const busyRef       = useRef(false)
 
-  // Background: use uploaded photo or fallback to default
-  const bgImage = photoUrl ? photoUrl : wp2
+  // Background: always use the default wallpaper.
+  // The uploaded photo is shown separately as a heart-shaped image
+  // on the final card, not as the full-screen background.
+  const bgImage = wp2
 
   const toggleMusic = useCallback(() => {
     if (musicOn) {
@@ -213,7 +215,23 @@ export default function BirthdayCard({ cardData, onBack }) {
       const fullHtml =
         jokePrefix +
         safeMessage +
-        `<br /><br /><span class="ft">— From ${senderName} (${relationship}) ✨</span>`
+        `<br /><br /><span class="ft">— From ${senderName} ✨</span>`
+
+      let scrolling = true
+      const smoothFollowScroll = () => {
+        if (!scrolling || !kalimatRef.current) return
+        const rect = kalimatRef.current.getBoundingClientRect()
+        const targetY = window.scrollY + rect.bottom - window.innerHeight / 2
+        // Ease toward the target position each frame instead of jumping,
+        // so the scroll feels continuous instead of stop-start.
+        const current = window.scrollY
+        const next = current + (targetY - current) * 0.08
+        if (Math.abs(targetY - current) > 1) {
+          window.scrollTo(0, next)
+        }
+        requestAnimationFrame(smoothFollowScroll)
+      }
+      requestAnimationFrame(smoothFollowScroll)
 
       new TypeIt(kalimatRef.current, {
         strings: [fullHtml],
@@ -222,6 +240,10 @@ export default function BirthdayCard({ cardData, onBack }) {
         cursor: true,
         html: true,
         afterComplete() {
+          scrolling = false
+          if (kalimatRef.current) {
+            kalimatRef.current.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          }
           heartTimerRef.current = setInterval(() => {
             const id = heartIdRef.current++
             const left     = Math.random() * 95
@@ -310,6 +332,11 @@ export default function BirthdayCard({ cardData, onBack }) {
         {/* ── FINAL ── */}
         {stage === 'final' && (
           <blockquote className="bq">
+            {photoUrl && (
+              <div className="final-heart-photo">
+                <img src={photoUrl} alt={recipientName} />
+              </div>
+            )}
             <p className="teksnim">Happy Level Up Day! 🥳</p>
             <p className="kalimat" ref={kalimatRef} />
           </blockquote>
