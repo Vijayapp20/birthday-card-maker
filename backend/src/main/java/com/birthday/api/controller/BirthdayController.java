@@ -36,7 +36,7 @@ public class BirthdayController {
     @PostMapping("/generate-message")
     public ResponseEntity<?> generateMessage(@RequestBody MessageRequest request) {
         try {
-            log.info("Generating AI message for: {} ({})", request.getRecipientName(), request.getRelationship());
+            log.info("Generating AI message for: {} ({})", request.recipientName(), request.relationship());
             String message = messageService.generateMessage(request);
             log.info("AI message generated successfully");
             return ResponseEntity.ok(new MessageResponse(message));
@@ -56,7 +56,7 @@ public class BirthdayController {
         try {
             log.info("Uploading file: {}, size: {} bytes", file.getOriginalFilename(), file.getSize());
             UploadResponse response = fileUploadService.saveFile(file);
-            log.info("File saved: {}", response.getUrl());
+            log.info("File saved: {}", response.url());
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
@@ -76,7 +76,7 @@ public class BirthdayController {
     public ResponseEntity<?> createCard(@RequestBody CardRequest request) {
         try {
             CardResponse response = cardService.saveCard(request);
-            log.info("Card saved with id: {}", response.getId());
+            log.info("Card saved with id: {}", response.id());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error saving card: {}", e.getMessage());
