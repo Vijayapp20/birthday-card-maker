@@ -21,11 +21,11 @@ public class CardService {
     public CardResponse saveCard(CardRequest request) {
         BirthdayCardEntity entity = new BirthdayCardEntity();
         entity.setId(UUID.randomUUID().toString());
-        entity.setRecipientName(request.getRecipientName());
-        entity.setSenderName(request.getSenderName());
-        entity.setRelationship(request.getRelationship());
-        entity.setMessage(request.getMessage());
-        entity.setPhotoUrl(request.getPhotoUrl());
+        entity.setRecipientName(request.recipientName());
+        entity.setSenderName(request.senderName());
+        entity.setRelationship(request.relationship());
+        entity.setMessage(request.message());
+        entity.setPhotoUrl(request.photoUrl());
 
         BirthdayCardEntity saved = birthdayCardRepository.save(entity);
         return toResponse(saved);

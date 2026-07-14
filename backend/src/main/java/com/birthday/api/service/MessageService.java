@@ -39,10 +39,10 @@ public class MessageService {
             - Do NOT include any greetings like "Happy Birthday" at the start (the card already has that)
             - Write ONLY the message body, nothing else
             """,
-            req.getRecipientName(),
-            req.getSenderName(),
-            req.getRelationship(),
-            req.getRelationship()
+            req.recipientName(),
+            req.senderName(),
+            req.relationship(),
+            req.relationship()
         );
     }
 }
