@@ -13,7 +13,11 @@ import pusn       from '../assets/pusn.gif'
 import mikir      from '../assets/mikir.gif'
 import g5         from '../assets/g5.gif'
 import mndkat     from '../assets/mndkat.gif'
+import pandapanah from '../assets/pandapanah.gif'
 import wp2        from '../assets/wp2.jpeg'
+
+// Map character key → imported gif asset
+const GIF_MAP = { pusn, mikir, cilukba, g5, mndkat, pandaputih, pandapanah }
 
 // Simple "Happy Birthday" melody synthesized with the Web Audio API.
 // Avoids bundling any copyrighted audio files.
@@ -61,18 +65,22 @@ function fireConfetti() {
 }
 
 export default function BirthdayCard({ cardData, onBack }) {
-  const { recipientName, senderName, relationship, message, photoUrl, shareId } = cardData
+  const { recipientName, senderName, relationship, message, photoUrl, shareId, characterGif } = cardData
+
+  // Resolve chosen character gif (fallback to g5 if unknown key)
+  const chosenGif = GIF_MAP[characterGif] || g5
 
   // Build dynamic slides using user data
   const SLIDES = [
-    { img: pusn,    text: `Hey ${recipientName} 🤭❤️`,                          fancy: false },
-    { img: mikir,   text: `I Just Want To\nSay To You 😆`,                       fancy: false },
-    { img: cilukba, text: `Hey it's your birthday today 😜`,                      fancy: false },
-    { img: g5,      text: `Happy Birthday ${recipientName}! 🥳`,                  fancy: true  },
-    { img: mndkat,  text: `Wishing you a long life\nand good health always 🥰`,   fancy: false },
+    { img: pusn,      text: `Hey ${recipientName} 🤭❤️`,                        fancy: false },
+    { img: mikir,     text: `I Just Want To\nSay To You 😆`,                     fancy: false },
+    { img: cilukba,   text: `Hey it's your birthday today 😜`,                    fancy: false },
+    { img: chosenGif, text: `Happy Birthday ${recipientName}! 🥳`,                fancy: true  },
+    { img: mndkat,    text: `Wishing you a long life\nand good health always 🥰`, fancy: false },
   ]
 
   const [stage,      setStage]      = useState('intro')
+  const [isTyping,   setIsTyping]   = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [btnLabel,   setBtnLabel]   = useState('Swipe 👉')
   const [btnVisible, setBtnVisible] = useState(false)
@@ -217,6 +225,11 @@ export default function BirthdayCard({ cardData, onBack }) {
         safeMessage +
         `<br /><br /><span class="ft">— From ${senderName} ✨</span>`
 
+      // Disable the card's floating animation while typing — it
+      // constantly shifts the message's position, which fights the
+      // auto-scroll loop below and causes jittery scrolling.
+      setIsTyping(true)
+
       let scrolling = true
       const smoothFollowScroll = () => {
         if (!scrolling || !kalimatRef.current) return
@@ -241,6 +254,7 @@ export default function BirthdayCard({ cardData, onBack }) {
         html: true,
         afterComplete() {
           scrolling = false
+          setIsTyping(false)
           if (kalimatRef.current) {
             kalimatRef.current.scrollIntoView({ block: 'center', behavior: 'smooth' })
           }
@@ -363,7 +377,7 @@ export default function BirthdayCard({ cardData, onBack }) {
       )}
 
       {/* Branding */}
-      <div className="footer-card">
+      <div className="rahul-branding">
         <b>made with ❤️ by <span>@vijayprasanth</span></b>
       </div>
     </div>
