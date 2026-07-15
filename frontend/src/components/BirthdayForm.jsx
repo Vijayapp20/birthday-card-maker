@@ -24,6 +24,14 @@ const CHARACTERS = [
 
 const RELATIONSHIPS = ['Father', 'Mother', 'Wife', 'Husband', 'Children', 'Lover', 'Friend', 'Brother', 'Sister', 'Other']
 
+const OCCASIONS = [
+  { key: 'birthday',    emoji: '🎂', label: 'Birthday'        },
+  { key: 'anniversary', emoji: '💍', label: 'Anniversary'     },
+  { key: 'graduation',  emoji: '🎓', label: 'Graduation'      },
+  { key: 'newjob',      emoji: '💼', label: 'New Job'         },
+  { key: 'babyshower',  emoji: '👶', label: 'Baby Shower'     },
+]
+
 export default function BirthdayForm({ onStart }) {
   const [recipientName, setRecipientName]   = useState('')
   const [senderName, setSenderName]         = useState('')
@@ -32,6 +40,7 @@ export default function BirthdayForm({ onStart }) {
   const [messageType, setMessageType]       = useState('custom')
   const [customMessage, setCustomMessage]   = useState('')
   const [selectedCharacter, setSelectedCharacter] = useState('g5') // default: party gif
+  const [occasion, setOccasion]                     = useState('birthday')
   const [photo, setPhoto]                   = useState(null)
   const [photoPreview, setPhotoPreview]     = useState(null)
   const [cropping, setCropping]             = useState(false)
@@ -110,7 +119,8 @@ export default function BirthdayForm({ onStart }) {
       try {
         const saveRes = await api.post('/api/cards', {
           recipientName, senderName, relationship, message: finalMessage, photoUrl,
-          characterGif: selectedCharacter
+          characterGif: selectedCharacter,
+          occasionType: occasion
         })
         shareId = saveRes.data.id
       } catch (saveErr) {
@@ -118,7 +128,7 @@ export default function BirthdayForm({ onStart }) {
       }
 
       // 4. Start the card
-      onStart({ recipientName, senderName, relationship, message: finalMessage, photoUrl, shareId, characterGif: selectedCharacter })
+      onStart({ recipientName, senderName, relationship, message: finalMessage, photoUrl, shareId, characterGif: selectedCharacter, occasionType: occasion })
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.')
     } finally {
@@ -138,6 +148,24 @@ export default function BirthdayForm({ onStart }) {
         </div>
 
         <form onSubmit={handleSubmit} className="bday-form">
+
+          {/* Occasion */}
+          <div className="field">
+            <label>🎉 Occasion Type</label>
+            <div className="occasion-grid">
+              {OCCASIONS.map(oc => (
+                <button
+                  key={oc.key}
+                  type="button"
+                  className={`occasion-btn${occasion === oc.key ? ' active' : ''}`}
+                  onClick={() => setOccasion(oc.key)}
+                >
+                  <span className="occasion-emoji">{oc.emoji}</span>
+                  <span>{oc.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Recipient */}
           <div className="field">
