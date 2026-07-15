@@ -7,6 +7,7 @@ public class CardRequest {
     private String message;
     private String photoUrl;
     private String characterGif; // e.g. "pusn", "mikir", "g5" etc.
+    private String occasionType;  // e.g. "birthday", "anniversary", "graduation"
 
     public CardRequest() {
     }
@@ -28,4 +29,7 @@ public class CardRequest {
 
     public String getCharacterGif() { return characterGif; }
     public void setCharacterGif(String characterGif) { this.characterGif = characterGif; }
+
+    public String getOccasionType() { return occasionType; }
+    public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
 }
