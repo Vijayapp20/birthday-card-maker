@@ -26,6 +26,7 @@ export default function App() {
           relationship: data.relationship,
           message: data.message,
           photoUrl: data.photoUrl,
+          characterGif: data.characterGif || 'g5',
         })
       })
       .catch(() => {
