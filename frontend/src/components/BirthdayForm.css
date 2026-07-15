@@ -93,6 +93,41 @@
 .field input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
 
 .custom-rel-input { margin-top: 10px; width: 100%; box-sizing: border-box; }
+
+/* Character selection */
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.char-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+  font-size: 10px;
+  font-family: var(--primary-font);
+}
+.char-btn img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.char-btn:hover { border-color: #ff758c; background: rgba(255,117,140,0.15); }
+.char-btn.active {
+  border-color: #ff758c;
+  background: rgba(255,117,140,0.25);
+  box-shadow: 0 0 10px rgba(255,117,140,0.4);
+}
 /* Relationship grid */
 .rel-grid {
   display: flex;
