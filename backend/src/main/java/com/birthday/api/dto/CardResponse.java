@@ -8,11 +8,12 @@ public class CardResponse {
     private String message;
     private String photoUrl;
     private String characterGif;
+    private String occasionType;
 
     public CardResponse() {}
 
     public CardResponse(String id, String recipientName, String senderName, String relationship,
-                        String message, String photoUrl, String characterGif) {
+                        String message, String photoUrl, String characterGif, String occasionType) {
         this.id = id;
         this.recipientName = recipientName;
         this.senderName = senderName;
@@ -20,6 +21,7 @@ public class CardResponse {
         this.message = message;
         this.photoUrl = photoUrl;
         this.characterGif = characterGif;
+        this.occasionType = occasionType;
     }
 
     public String getId() { return id; }
@@ -42,4 +44,7 @@ public class CardResponse {
 
     public String getCharacterGif() { return characterGif; }
     public void setCharacterGif(String characterGif) { this.characterGif = characterGif; }
+
+    public String getOccasionType() { return occasionType; }
+    public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
 }
