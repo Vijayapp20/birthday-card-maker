@@ -3,6 +3,25 @@ import api from '../api'
 import { autoCropToFace, PhotoValidationError } from '../utils/faceCrop'
 import './BirthdayForm.css'
 
+// GIF character options for the 5th slide
+import pusn     from '../assets/pusn.gif'
+import mikir    from '../assets/mikir.gif'
+import cilukba  from '../assets/cilukba.gif'
+import g5       from '../assets/g5.gif'
+import mndkat   from '../assets/mndkat.gif'
+import pandaputih from '../assets/pandaputih.gif'
+import pandapanah from '../assets/pandapanah.gif'
+
+const CHARACTERS = [
+  { key: 'g5',         src: g5,         label: '🎉 Party'   },
+  { key: 'pusn',       src: pusn,       label: '🐱 Cute'    },
+  { key: 'mikir',      src: mikir,      label: '🤔 Think'   },
+  { key: 'cilukba',    src: cilukba,    label: '👀 Peek'    },
+  { key: 'mndkat',     src: mndkat,     label: '🥰 Love'    },
+  { key: 'pandaputih', src: pandaputih, label: '🐼 Panda'   },
+  { key: 'pandapanah', src: pandapanah, label: '🏹 Arrow'   },
+]
+
 const RELATIONSHIPS = ['Father', 'Mother', 'Wife', 'Husband', 'Children', 'Lover', 'Friend', 'Brother', 'Sister', 'Other']
 
 export default function BirthdayForm({ onStart }) {
@@ -10,12 +29,13 @@ export default function BirthdayForm({ onStart }) {
   const [senderName, setSenderName]         = useState('')
   const [relationship, setRelationship]     = useState('')
   const [isCustomRelationship, setIsCustomRelationship] = useState(false)
-  const [messageType, setMessageType]       = useState('custom') // 'custom' | 'ai'
+  const [messageType, setMessageType]       = useState('custom')
   const [customMessage, setCustomMessage]   = useState('')
+  const [selectedCharacter, setSelectedCharacter] = useState('g5') // default: party gif
   const [photo, setPhoto]                   = useState(null)
   const [photoPreview, setPhotoPreview]     = useState(null)
   const [cropping, setCropping]             = useState(false)
-  const [faceDetected, setFaceDetected]     = useState(null) // null = unknown, true/false after crop
+  const [faceDetected, setFaceDetected]     = useState(null)
   const [loading, setLoading]               = useState(false)
   const [error, setError]                   = useState('')
   const fileRef = useRef(null)
@@ -89,16 +109,16 @@ export default function BirthdayForm({ onStart }) {
       let shareId = null
       try {
         const saveRes = await api.post('/api/cards', {
-          recipientName, senderName, relationship, message: finalMessage, photoUrl
+          recipientName, senderName, relationship, message: finalMessage, photoUrl,
+          characterGif: selectedCharacter
         })
         shareId = saveRes.data.id
       } catch (saveErr) {
-        // Sharing is a nice-to-have; don't block card creation if it fails
         console.error('Failed to save shareable card:', saveErr)
       }
 
       // 4. Start the card
-      onStart({ recipientName, senderName, relationship, message: finalMessage, photoUrl, shareId })
+      onStart({ recipientName, senderName, relationship, message: finalMessage, photoUrl, shareId, characterGif: selectedCharacter })
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.')
     } finally {
@@ -216,6 +236,24 @@ export default function BirthdayForm({ onStart }) {
                 ✨ AI will generate a personalised message based on your name, recipient's name & relationship using <b>Groq (Llama3)</b>!
               </div>
             )}
+          </div>
+
+          {/* Character Selection */}
+          <div className="field">
+            <label>🎭 Choose Character <span>(5th slide-ல வரும்)</span></label>
+            <div className="char-grid">
+              {CHARACTERS.map(ch => (
+                <button
+                  key={ch.key}
+                  type="button"
+                  className={`char-btn${selectedCharacter === ch.key ? ' active' : ''}`}
+                  onClick={() => setSelectedCharacter(ch.key)}
+                >
+                  <img src={ch.src} alt={ch.label} />
+                  <span>{ch.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Photo Upload */}
