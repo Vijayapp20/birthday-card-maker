@@ -21,11 +21,12 @@ public class CardService {
     public CardResponse saveCard(CardRequest request) {
         BirthdayCardEntity entity = new BirthdayCardEntity();
         entity.setId(UUID.randomUUID().toString());
-        entity.setRecipientName(request.recipientName());
-        entity.setSenderName(request.senderName());
-        entity.setRelationship(request.relationship());
-        entity.setMessage(request.message());
-        entity.setPhotoUrl(request.photoUrl());
+        entity.setRecipientName(request.getRecipientName());
+        entity.setSenderName(request.getSenderName());
+        entity.setRelationship(request.getRelationship());
+        entity.setMessage(request.getMessage());
+        entity.setPhotoUrl(request.getPhotoUrl());
+        entity.setCharacterGif(request.getCharacterGif());
 
         BirthdayCardEntity saved = birthdayCardRepository.save(entity);
         return toResponse(saved);
@@ -44,7 +45,8 @@ public class CardService {
                 entity.getSenderName(),
                 entity.getRelationship(),
                 entity.getMessage(),
-                entity.getPhotoUrl()
+                entity.getPhotoUrl(),
+                entity.getCharacterGif()
         );
     }
 }
