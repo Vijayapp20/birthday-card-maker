@@ -19,6 +19,15 @@ import wp2        from '../assets/wp2.jpeg'
 // Map character key → imported gif asset
 const GIF_MAP = { pusn, mikir, cilukba, g5, mndkat, pandaputih, pandapanah }
 
+// Occasion-specific config
+const OCCASION_CONFIG = {
+  birthday:    { slide1: (name) => `Hey ${name} 🤭❤️`,          slide3: `Hey it's your birthday today 😜`,      slide5: `Wishing you a long life\nand good health always 🥰`, cardTitle: 'Happy Level Up Day! 🥳',      jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
+  anniversary: { slide1: (name) => `Hey ${name} 💍❤️`,          slide3: `Happy Anniversary to you both! 🥂`,    slide5: `Wishing you many more years of love 💕`,            cardTitle: 'Happy Anniversary! 💍',        jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
+  graduation:  { slide1: (name) => `Hey ${name} 🎓✨`,          slide3: `You did it! Congratulations! 🎉`,      slide5: `Wishing you great success ahead! 🌟`,              cardTitle: 'Congratulations! 🎓',          jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
+  newjob:      { slide1: (name) => `Hey ${name} 💼🔥`,          slide3: `New chapter, new beginnings! 🚀`,      slide5: `Wishing you great success in your new role! 💪`,   cardTitle: 'Congrats on the New Role! 💼', jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
+  babyshower:  { slide1: (name) => `Hey ${name} 👶🎀`,          slide3: `A new little one is on the way! 🍼`,   slide5: `Wishing you joy and happiness always! 🌈`,         cardTitle: 'Welcome Little One! 👶',       jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
+}
+
 // Simple "Happy Birthday" melody synthesized with the Web Audio API.
 // Avoids bundling any copyrighted audio files.
 const HBD_NOTES = [
@@ -65,18 +74,21 @@ function fireConfetti() {
 }
 
 export default function BirthdayCard({ cardData, onBack }) {
-  const { recipientName, senderName, relationship, message, photoUrl, shareId, characterGif } = cardData
+  const { recipientName, senderName, relationship, message, photoUrl, shareId, characterGif, occasionType } = cardData
 
   // Resolve chosen character gif (fallback to g5 if unknown key)
   const chosenGif = GIF_MAP[characterGif] || g5
 
+  // Resolve occasion config (fallback to birthday)
+  const occ = OCCASION_CONFIG[occasionType] || OCCASION_CONFIG.birthday
+
   // Build dynamic slides using user data
   const SLIDES = [
-    { img: pusn,      text: `Hey ${recipientName} 🤭❤️`,                        fancy: false },
-    { img: mikir,     text: `I Just Want To\nSay To You 😆`,                     fancy: false },
-    { img: cilukba,   text: `Hey it's your birthday today 😜`,                    fancy: false },
-    { img: chosenGif, text: `Happy Birthday ${recipientName}! 🥳`,                fancy: true  },
-    { img: mndkat,    text: `Wishing you a long life\nand good health always 🥰`, fancy: false },
+    { img: pusn,      text: occ.slide1(recipientName),                      fancy: false },
+    { img: mikir,     text: `I Just Want To\nSay To You 😆`,               fancy: false },
+    { img: cilukba,   text: occ.slide3,                                      fancy: false },
+    { img: chosenGif, text: `${occ.cardTitle.replace(/[^a-zA-Z\s!]/g, '').trim()} ${recipientName}!`, fancy: true  },
+    { img: mndkat,    text: occ.slide5,                                      fancy: false },
   ]
 
   const [stage,      setStage]      = useState('intro')
@@ -213,9 +225,7 @@ export default function BirthdayCard({ cardData, onBack }) {
     setTimeout(() => {
       if (!kalimatRef.current) return
 
-      const jokePrefix = poinjwb === 1
-        ? '<b>Just kidding haha 🤣</b><br /><br />'
-        : 'Just Kidding 🤣<br /><br />'
+      const jokePrefix = poinjwb === 1 ? occ.jokePrefix1 : occ.jokePrefix2
 
       // Use user's custom/AI message
       const safeMessage = message.replace(/\n/g, '<br />')
@@ -351,7 +361,7 @@ export default function BirthdayCard({ cardData, onBack }) {
                 <img src={photoUrl} alt={recipientName} />
               </div>
             )}
-            <p className="teksnim">Happy Level Up Day! 🥳</p>
+            <p className="teksnim">{occ.cardTitle}</p>
             <p className="kalimat" ref={kalimatRef} />
           </blockquote>
         )}
