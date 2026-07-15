@@ -28,6 +28,9 @@ public class BirthdayCardEntity {
     @Column(name = "photo_url")
     private String photoUrl;
 
+    @Column(name = "character_gif")
+    private String characterGif;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -79,19 +82,12 @@ public class BirthdayCardEntity {
         this.message = message;
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
+    public String getCharacterGif() { return characterGif; }
+    public void setCharacterGif(String characterGif) { this.characterGif = characterGif; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
