@@ -22,6 +22,14 @@ const CHARACTERS = [
   { key: 'pandapanah', src: pandapanah, label: '🏹 Arrow'   },
 ]
 
+const OCCASIONS = [
+  { key: 'birthday',   label: '🎂 Birthday'    },
+  { key: 'anniversary',label: '💍 Anniversary'  },
+  { key: 'graduation', label: '🎓 Graduation'   },
+  { key: 'newjob',     label: '💼 New Job'      },
+  { key: 'babyshower', label: '👶 Baby Shower'  },
+]
+
 const RELATIONSHIPS = ['Father', 'Mother', 'Wife', 'Husband', 'Children', 'Lover', 'Friend', 'Brother', 'Sister', 'Other']
 
 const OCCASIONS = [
@@ -40,6 +48,7 @@ export default function BirthdayForm({ onStart }) {
   const [messageType, setMessageType]       = useState('custom')
   const [customMessage, setCustomMessage]   = useState('')
   const [selectedCharacter, setSelectedCharacter] = useState('g5') // default: party gif
+  const [occasionType, setOccasionType]           = useState('birthday')
   const [occasion, setOccasion]                     = useState('birthday')
   const [photo, setPhoto]                   = useState(null)
   const [photoPreview, setPhotoPreview]     = useState(null)
@@ -110,6 +119,7 @@ export default function BirthdayForm({ onStart }) {
           recipientName,
           senderName,
           relationship,
+          occasionType,
         })
         finalMessage = res.data.message
       }
@@ -120,6 +130,7 @@ export default function BirthdayForm({ onStart }) {
         const saveRes = await api.post('/api/cards', {
           recipientName, senderName, relationship, message: finalMessage, photoUrl,
           characterGif: selectedCharacter,
+          occasionType,
           occasionType: occasion
         })
         shareId = saveRes.data.id
@@ -187,6 +198,23 @@ export default function BirthdayForm({ onStart }) {
               value={senderName}
               onChange={e => setSenderName(e.target.value)}
             />
+          </div>
+
+          {/* Occasion Type */}
+          <div className="field">
+            <label>🎉 Occasion</label>
+            <div className="occasion-grid">
+              {OCCASIONS.map(o => (
+                <button
+                  key={o.key}
+                  type="button"
+                  className={`occasion-btn${occasionType === o.key ? ' active' : ''}`}
+                  onClick={() => setOccasionType(o.key)}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Relationship */}
