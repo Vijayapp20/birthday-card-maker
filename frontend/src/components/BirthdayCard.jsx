@@ -340,7 +340,7 @@ export default function BirthdayCard({ cardData, onBack }) {
                 </svg>
               </div>
             </div>
-            <p className="ket">Touch the Heart, {recipientName}! 💖</p>
+            <p className="ket">Touch to Open, {recipientName}! 💖</p>
           </>
         )}
 
