@@ -34,6 +34,9 @@ public class BirthdayCardEntity {
     @Column(name = "occasion_type")
     private String occasionType;
 
+    @Column(name = "occasion_type")
+    private String occasionType;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -90,6 +93,9 @@ public class BirthdayCardEntity {
 
     public String getCharacterGif() { return characterGif; }
     public void setCharacterGif(String characterGif) { this.characterGif = characterGif; }
+
+    public String getOccasionType() { return occasionType; }
+    public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
 
     public String getOccasionType() { return occasionType; }
     public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
