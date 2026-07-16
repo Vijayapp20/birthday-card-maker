@@ -19,6 +19,15 @@ import wp2        from '../assets/wp2.jpeg'
 // Map character key → imported gif asset
 const GIF_MAP = { pusn, mikir, cilukba, g5, mndkat, pandaputih, pandapanah }
 
+// Occasion-based content config
+const OCCASION_CONFIG = {
+  birthday:    { cardTitle: 'Happy Level Up Day! 🥳',      slide1: 'Hey {name} 🤭❤️',           slide3: "It's your Birthday today! 🎂",    slide5: 'Wishing you a long life\nand good health always 🥰' },
+  anniversary: { cardTitle: 'Happy Anniversary! 💍',        slide1: 'Hey {name} 💕',               slide3: 'Celebrating your special day! 💍', slide5: 'Wishing you endless love\nand happiness together 🥰' },
+  graduation:  { cardTitle: 'Congratulations! 🎓',          slide1: 'Hey {name} 🎉',               slide3: 'You did it! 🎓',                   slide5: 'Wishing you great success\nin all your future endeavors! 🚀' },
+  newjob:      { cardTitle: 'Congrats on the New Role! 🚀', slide1: 'Hey {name} 💼',               slide3: 'A new chapter begins! 💼',         slide5: 'Wishing you tremendous success\nin your new journey! ⭐' },
+  babyshower:  { cardTitle: 'Welcome Little One! 👶',       slide1: 'Hey {name} 🍼',               slide3: 'A new blessing arrives! 👶',       slide5: 'Wishing your family\njoy and love always 💕' },
+}
+
 // Occasion-specific config
 const OCCASION_CONFIG = {
   birthday:    { slide1: (name) => `Hey ${name} 🤭❤️`,          slide3: `Hey it's your birthday today 😜`,      slide5: `Wishing you a long life\nand good health always 🥰`, cardTitle: 'Happy Level Up Day! 🥳',      jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
