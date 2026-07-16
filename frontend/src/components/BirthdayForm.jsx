@@ -162,7 +162,7 @@ export default function BirthdayForm({ onStart }) {
         <div className="form-header">
           <span className="form-emoji">🎂</span>
           <h1>BirthDay Wishes</h1>
-          <p>Create a personalised animated birthday card!</p>
+          <p>Create a personalised animated celebration card!</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bday-form">
@@ -279,7 +279,7 @@ export default function BirthdayForm({ onStart }) {
 
           {/* Message Type */}
           <div className="field">
-            <label>✍️ Birthday Message</label>
+            <label>✍️ Message</label>
             <div className="radio-row">
               <label className={`radio-opt${messageType === 'custom' ? ' active' : ''}`}>
                 <input
@@ -306,7 +306,7 @@ export default function BirthdayForm({ onStart }) {
             {messageType === 'custom' && (
               <textarea
                 className="msg-textarea"
-                placeholder="Write your heartfelt birthday message here..."
+                placeholder="Write your heartfelt message here..."
                 value={customMessage}
                 onChange={e => setCustomMessage(e.target.value)}
                 rows={4}
@@ -314,7 +314,7 @@ export default function BirthdayForm({ onStart }) {
             )}
             {messageType === 'ai' && (
               <div className="ai-note">
-                ✨ AI will generate a personalised message based on your name, recipient's name & relationship using <b>Groq (Llama3)</b>!
+                ✨ AI will generate a personalised message based on the occasion, names & relationship using <b>Groq (Llama3)</b>!
               </div>
             )}
           </div>
@@ -381,7 +381,7 @@ export default function BirthdayForm({ onStart }) {
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading
               ? <span className="spinner">⏳ {messageType === 'ai' ? 'AI generating...' : 'Creating...'}</span>
-              : '🎉 Create Birthday Card'}
+              : '🎉 Create Celebration Card'}
           </button>
 
         </form>
