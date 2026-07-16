@@ -26,6 +26,8 @@ const OCCASION_CONFIG = {
   graduation:  { cardTitle: 'Congratulations! 🎓',          slide1: 'Hey {name} 🎉',               slide3: 'You did it! 🎓',                   slide5: 'Wishing you great success\nin all your future endeavors! 🚀' },
   newjob:      { cardTitle: 'Congrats on the New Role! 🚀', slide1: 'Hey {name} 💼',               slide3: 'A new chapter begins! 💼',         slide5: 'Wishing you tremendous success\nin your new journey! ⭐' },
   babyshower:  { cardTitle: 'Welcome Little One! 👶',       slide1: 'Hey {name} 🍼',               slide3: 'A new blessing arrives! 👶',       slide5: 'Wishing your family\njoy and love always 💕' },
+  newhome:     { cardTitle: 'Welcome to Your New Home! 🏠', slide1: 'Hey {name} 🏠',               slide3: 'A new beginning awaits! 🏠',       slide5: 'Wishing you warmth and joy\nin your beautiful new home 🌟' },
+  engagement:  { cardTitle: 'Congratulations! 💑',          slide1: 'Hey {name} 💑',               slide3: 'A beautiful journey begins! 💑',   slide5: 'Wishing you a lifetime\nof love and happiness together 💕' },
 }
 
 // Occasion-specific config
