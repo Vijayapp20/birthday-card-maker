@@ -7,6 +7,7 @@ public class CardRequest {
     private String message;
     private String photoUrl;
     private String characterGif; // e.g. "pusn", "mikir", "g5" etc.
+    private String occasionType;  // e.g. "birthday", "anniversary", "graduation", "newjob", "babyshower"
     private String occasionType;  // e.g. "birthday", "anniversary", "graduation"
 
     public CardRequest() {
