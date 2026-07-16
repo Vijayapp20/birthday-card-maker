@@ -52,6 +52,7 @@ export default function BirthdayForm({ onStart }) {
   const [customMessage, setCustomMessage]   = useState('')
   const [selectedCharacter, setSelectedCharacter] = useState('g5') // default: party gif
   const [occasionType, setOccasionType]           = useState('birthday')
+  const [customOccasion, setCustomOccasion]       = useState('')
   const [isCustomOccasion, setIsCustomOccasion]     = useState(false)
   const [customOccasion, setCustomOccasion]         = useState('')
   const [occasion, setOccasion]                     = useState('birthday')
@@ -125,7 +126,7 @@ export default function BirthdayForm({ onStart }) {
           recipientName,
           senderName,
           relationship,
-          occasionType,
+          occasionType: occasionType === 'custom' ? (customOccasion || 'custom') : occasionType,
         })
         finalMessage = res.data.message
       }
@@ -136,8 +137,8 @@ export default function BirthdayForm({ onStart }) {
         const saveRes = await api.post('/api/cards', {
           recipientName, senderName, relationship, message: finalMessage, photoUrl,
           characterGif: selectedCharacter,
-          occasionType,
-          occasionType: occasion
+          occasionType: occasionType === 'custom' ? (customOccasion || 'custom') : occasionType,
+          occasionType: occasionType === 'custom' ? (customOccasion || 'custom') : occasionType: occasion
         })
         shareId = saveRes.data.id
       } catch (saveErr) {
