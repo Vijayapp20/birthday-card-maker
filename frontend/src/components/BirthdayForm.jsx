@@ -55,7 +55,6 @@ export default function BirthdayForm({ onStart }) {
   const [customOccasion, setCustomOccasion]       = useState('')
   const [isCustomOccasion, setIsCustomOccasion]     = useState(false)
   const [customOccasion, setCustomOccasion]         = useState('')
-  const [occasion, setOccasion]                     = useState('birthday')
   const [photo, setPhoto]                   = useState(null)
   const [photoPreview, setPhotoPreview]     = useState(null)
   const [cropping, setCropping]             = useState(false)
@@ -137,8 +136,7 @@ export default function BirthdayForm({ onStart }) {
         const saveRes = await api.post('/api/cards', {
           recipientName, senderName, relationship, message: finalMessage, photoUrl,
           characterGif: selectedCharacter,
-          occasionType: occasionType === 'custom' ? (customOccasion || 'custom') : occasionType,
-          occasionType: occasionType === 'custom' ? (customOccasion || 'custom') : occasionType: occasion
+          occasionType: occasionType === 'custom' ? (customOccasion || 'custom') : occasionType
         })
         shareId = saveRes.data.id
       } catch (saveErr) {
@@ -146,7 +144,7 @@ export default function BirthdayForm({ onStart }) {
       }
 
       // 4. Start the card
-      onStart({ recipientName, senderName, relationship, message: finalMessage, photoUrl, shareId, characterGif: selectedCharacter, occasionType: occasion })
+      onStart({ recipientName, senderName, relationship, message: finalMessage, photoUrl, shareId, characterGif: selectedCharacter, occasionType: occasionType === 'custom' ? (customOccasion || 'custom') : occasionType })
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.')
     } finally {
