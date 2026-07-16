@@ -27,6 +27,7 @@ export default function App() {
           message: data.message,
           photoUrl: data.photoUrl,
           characterGif: data.characterGif || 'g5',
+          occasionType: data.occasionType || 'birthday',
         })
       })
       .catch(() => {
