@@ -321,3 +321,30 @@
   background: rgba(255,117,140,0.25);
   box-shadow: 0 0 10px rgba(255,117,140,0.4);
 }
+
+/* Occasion selector */
+.occasion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.occasion-btn {
+  padding: 10px 6px;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 12px;
+  font-family: var(--primary-font);
+  font-weight: 600;
+  transition: all 0.2s;
+  text-align: center;
+}
+.occasion-btn:hover { border-color: #ff758c; background: rgba(255,117,140,0.15); }
+.occasion-btn.active {
+  border-color: #ff758c;
+  background: rgba(255,117,140,0.25);
+  box-shadow: 0 0 10px rgba(255,117,140,0.4);
+}
