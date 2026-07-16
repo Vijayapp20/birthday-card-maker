@@ -91,7 +91,7 @@ export default function BirthdayCard({ cardData, onBack }) {
   const chosenGif = GIF_MAP[characterGif] || g5
 
   // Resolve occasion config (fallback to birthday)
-  const occ = OCCASION_CONFIG[occasionType] || OCCASION_CONFIG.birthday
+  const occ = getOccasionConfig(occasionType || 'birthday')
 
   // Build dynamic slides using user data
   const SLIDES = [
