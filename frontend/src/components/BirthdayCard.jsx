@@ -30,13 +30,18 @@ const OCCASION_CONFIG = {
   engagement:  { cardTitle: 'Congratulations! 💑',          slide1: 'Hey {name} 💑',               slide3: 'A beautiful journey begins! 💑',   slide5: 'Wishing you a lifetime\nof love and happiness together 💕' },
 }
 
-// Occasion-specific config
-const OCCASION_CONFIG = {
-  birthday:    { slide1: (name) => `Hey ${name} 🤭❤️`,          slide3: `Hey it's your birthday today 😜`,      slide5: `Wishing you a long life\nand good health always 🥰`, cardTitle: 'Happy Level Up Day! 🥳',      jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
-  anniversary: { slide1: (name) => `Hey ${name} 💍❤️`,          slide3: `Happy Anniversary to you both! 🥂`,    slide5: `Wishing you many more years of love 💕`,            cardTitle: 'Happy Anniversary! 💍',        jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
-  graduation:  { slide1: (name) => `Hey ${name} 🎓✨`,          slide3: `You did it! Congratulations! 🎉`,      slide5: `Wishing you great success ahead! 🌟`,              cardTitle: 'Congratulations! 🎓',          jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
-  newjob:      { slide1: (name) => `Hey ${name} 💼🔥`,          slide3: `New chapter, new beginnings! 🚀`,      slide5: `Wishing you great success in your new role! 💪`,   cardTitle: 'Congrats on the New Role! 💼', jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
-  babyshower:  { slide1: (name) => `Hey ${name} 👶🎀`,          slide3: `A new little one is on the way! 🍼`,   slide5: `Wishing you joy and happiness always! 🌈`,         cardTitle: 'Welcome Little One! 👶',       jokePrefix1: '<b>Just kidding haha 🤣</b><br /><br />', jokePrefix2: 'Just Kidding 🤣<br /><br />' },
+
+
+// For custom occasions, generate config dynamically
+function getOccasionConfig(occasionType) {
+  if (OCCASION_CONFIG[occasionType]) return OCCASION_CONFIG[occasionType]
+  const label = occasionType.charAt(0).toUpperCase() + occasionType.slice(1)
+  return {
+    cardTitle: 'Congratulations! 🎉',
+    slide1: 'Hey {name} 🎉',
+    slide3: `Celebrating your ${label}! 🎊`,
+    slide5: 'Wishing you all the best\nin this special moment 🥰'
+  }
 }
 
 // Simple "Happy Birthday" melody synthesized with the Web Audio API.
