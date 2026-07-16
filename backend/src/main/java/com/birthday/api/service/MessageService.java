@@ -24,9 +24,9 @@ public class MessageService {
 
     private String buildPrompt(MessageRequest req) {
         return String.format("""
-            You are a warm and heartfelt birthday message writer.
+            You are a warm and heartfelt celebration message writer.
             
-            Write a sincere, emotional, and uplifting birthday message with these details:
+            Write a sincere, emotional, and uplifting celebration message with these details:
             - Recipient's Name: %s
             - Sender's Name: %s
             - Relationship: %s (the recipient is the sender's %s)
@@ -36,7 +36,7 @@ public class MessageService {
             - Tone should match the relationship (e.g., warm & loving for Wife/Husband/Lover, respectful for Father/Mother, playful for Friend, sweet for Children)
             - 3-5 sentences max, no bullet points
             - End with a warm closing line
-            - Do NOT include any greetings like "Happy Birthday" at the start (the card already has that)
+            - Do NOT include any greetings like "Happy Birthday"/"Congratulations" at the start (the card already has that)
             - Write ONLY the message body, nothing else
             """,
             req.recipientName(),
