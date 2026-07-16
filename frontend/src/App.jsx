@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react' // v2
 import api from './api'
 import BirthdayForm from './components/BirthdayForm'
 import BirthdayCard from './components/BirthdayCard'
