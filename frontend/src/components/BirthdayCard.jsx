@@ -100,10 +100,10 @@ export default function BirthdayCard({ cardData, onBack }) {
 
   // Build dynamic slides using user data
   const SLIDES = [
-    { img: pusn,      text: occ.slide1(recipientName),                      fancy: false },
+    { img: pusn,      text: occ.slide1.replace('{name}', recipientName),    fancy: false },
     { img: mikir,     text: `I Just Want To\nSay To You 😆`,               fancy: false },
     { img: cilukba,   text: occ.slide3,                                      fancy: false },
-    { img: chosenGif, text: `${occ.cardTitle.replace(/[^a-zA-Z\s!]/g, '').trim()} ${recipientName}!`, fancy: true  },
+    { img: chosenGif, text: `Happy ${occ.cardTitle.split('!')[0].replace(/Happy /,'').replace(/Congratulations/,'Congratulations').trim()}\n${recipientName}! 🎉`, fancy: true  },
     { img: mndkat,    text: occ.slide5,                                      fancy: false },
   ]
 
@@ -241,7 +241,7 @@ export default function BirthdayCard({ cardData, onBack }) {
     setTimeout(() => {
       if (!kalimatRef.current) return
 
-      const jokePrefix = poinjwb === 1 ? occ.jokePrefix1 : occ.jokePrefix2
+      const jokePrefix = poinjwb === 1 ? '<b>Just kidding haha 🤣</b><br /><br />' : 'Just Kidding 🤣<br /><br />'
 
       // Use user's custom/AI message
       const safeMessage = message.replace(/\n/g, '<br />')
