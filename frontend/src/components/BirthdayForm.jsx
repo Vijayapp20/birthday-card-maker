@@ -28,6 +28,9 @@ const OCCASIONS = [
   { key: 'graduation', label: '🎓 Graduation'   },
   { key: 'newjob',     label: '💼 New Job'      },
   { key: 'babyshower', label: '👶 Baby Shower'  },
+  { key: 'newhome',    label: '🏠 New Home'     },
+  { key: 'engagement', label: '💑 Engagement'   },
+  { key: 'custom',     label: '🎉 Custom'       },
 ]
 
 const RELATIONSHIPS = ['Father', 'Mother', 'Wife', 'Husband', 'Children', 'Lover', 'Friend', 'Brother', 'Sister', 'Other']
@@ -49,6 +52,8 @@ export default function BirthdayForm({ onStart }) {
   const [customMessage, setCustomMessage]   = useState('')
   const [selectedCharacter, setSelectedCharacter] = useState('g5') // default: party gif
   const [occasionType, setOccasionType]           = useState('birthday')
+  const [isCustomOccasion, setIsCustomOccasion]     = useState(false)
+  const [customOccasion, setCustomOccasion]         = useState('')
   const [occasion, setOccasion]                     = useState('birthday')
   const [photo, setPhoto]                   = useState(null)
   const [photoPreview, setPhotoPreview]     = useState(null)
@@ -95,6 +100,7 @@ export default function BirthdayForm({ onStart }) {
 
     if (!recipientName.trim()) return setError('Please enter recipient name!')
     if (!senderName.trim())    return setError('Please enter your name!')
+    if (!occasionType.trim())  return setError(isCustomOccasion ? 'Please type your occasion!' : 'Please select an occasion!')
     if (!relationship.trim())  return setError(isCustomRelationship ? 'Please type your relationship!' : 'Please select a relationship!')
     if (messageType === 'custom' && !customMessage.trim())
       return setError('Please enter your custom message!')
@@ -208,13 +214,31 @@ export default function BirthdayForm({ onStart }) {
                 <button
                   key={o.key}
                   type="button"
-                  className={`occasion-btn${occasionType === o.key ? ' active' : ''}`}
-                  onClick={() => setOccasionType(o.key)}
+                  className={`occasion-btn${(o.key === 'custom' ? isCustomOccasion : (!isCustomOccasion && occasionType === o.key)) ? ' active' : ''}`}
+                  onClick={() => {
+                    if (o.key === 'custom') {
+                      setIsCustomOccasion(true)
+                      setOccasionType('')
+                    } else {
+                      setIsCustomOccasion(false)
+                      setOccasionType(o.key)
+                    }
+                  }}
                 >
                   {o.label}
                 </button>
               ))}
             </div>
+            {isCustomOccasion && (
+              <input
+                type="text"
+                className="custom-rel-input"
+                placeholder="Type your occasion (e.g. Farewell, Retirement, Get Well Soon)"
+                value={customOccasion}
+                onChange={e => { setCustomOccasion(e.target.value); setOccasionType(e.target.value) }}
+                autoFocus
+              />
+            )}
           </div>
 
           {/* Relationship */}
