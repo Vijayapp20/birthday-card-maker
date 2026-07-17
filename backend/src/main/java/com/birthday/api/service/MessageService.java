@@ -14,33 +14,39 @@ public class MessageService {
     }
 
     public String generateMessage(MessageRequest request) {
-        String prompt = buildPrompt(request);
         return chatClient.prompt()
-                .user(prompt)
+                .user(buildPrompt(request))
                 .call()
                 .content();
     }
 
     private String buildPrompt(MessageRequest req) {
-        String occasion = req.occasionType() != null ? req.occasionType() : "birthday";
-        return String.format("""
-            You are a warm and heartfelt celebration message writer.
+        String occasion = (req.occasionType() != null && !req.occasionType().isBlank())
+                ? req.occasionType()
+                : "celebration";
 
-            Write a sincere, emotional, and uplifting celebration message with these details:
-            - Recipient's Name: %s
-            - Sender's Name: %s
-            - Relationship: %s (the recipient is the sender's %s)
-            - Occasion: %s
-
-            Requirements:
-            - Make it personal using both names
-            - Tone should match the relationship AND occasion
-            - For Birthday: warm, celebratory; Anniversary: romantic, nostalgic; Graduation: proud, encouraging; New Job/Promotion: motivating, excited; New Home: excited, warm; Baby Shower: joyful, tender; Engagement: romantic, joyful; Custom: match the occasion tone
-            - 3-5 sentences max, no bullet points
-            - End with a warm closing line matching the occasion
-            - Do NOT include greetings like "Happy Birthday"/"Congratulations" at the start (the card already has that)
-            - Write ONLY the message body, nothing else
-            """,
+        return String.format(
+            "You are a warm and heartfelt message writer for special occasions.%n%n" +
+            "Write a sincere, emotional, and uplifting message with these details:%n" +
+            "- Recipient's Name: %s%n" +
+            "- Sender's Name: %s%n" +
+            "- Relationship: %s (the recipient is the sender's %s)%n" +
+            "- Occasion: %s%n%n" +
+            "Requirements:%n" +
+            "- Make it personal using both names%n" +
+            "- Tone must match the occasion appropriately%n" +
+            "- Anniversary: romantic, nostalgic%n" +
+            "- Graduation: proud, encouraging%n" +
+            "- New Job or Promotion: motivating, excited%n" +
+            "- New Home: warm, excited%n" +
+            "- Baby Shower or New Born: joyful, tender%n" +
+            "- Engagement: romantic, joyful%n" +
+            "- Birthday: warm, celebratory%n" +
+            "- Custom or Other: match the occasion tone appropriately%n" +
+            "- 3-5 sentences max, no bullet points%n" +
+            "- End with a warm closing line that fits the occasion%n" +
+            "- Do NOT start with greetings like Happy Birthday or Congratulations (the card already has them)%n" +
+            "- Write ONLY the message body, nothing else",
             req.recipientName(),
             req.senderName(),
             req.relationship(),
