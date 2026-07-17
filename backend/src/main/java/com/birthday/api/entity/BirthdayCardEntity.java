@@ -1,7 +1,6 @@
 package com.birthday.api.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,68 +33,36 @@ public class BirthdayCardEntity {
     @Column(name = "occasion_type")
     private String occasionType;
 
-    @Column(name = "occasion_type")
-    private String occasionType;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public BirthdayCardEntity() {
-    }
+    public BirthdayCardEntity() {}
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getRecipientName() { return recipientName; }
+    public void setRecipientName(String recipientName) { this.recipientName = recipientName; }
 
-    public String getRecipientName() {
-        return recipientName;
-    }
+    public String getSenderName() { return senderName; }
+    public void setSenderName(String senderName) { this.senderName = senderName; }
 
-    public void setRecipientName(String recipientName) {
-        this.recipientName = recipientName;
-    }
+    public String getRelationship() { return relationship; }
+    public void setRelationship(String relationship) { this.relationship = relationship; }
 
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
-    }
-
-    public String getRelationship() {
-        return relationship;
-    }
-
-    public void setRelationship(String relationship) {
-        this.relationship = relationship;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 
     public String getPhotoUrl() { return photoUrl; }
     public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 
     public String getCharacterGif() { return characterGif; }
     public void setCharacterGif(String characterGif) { this.characterGif = characterGif; }
-
-    public String getOccasionType() { return occasionType; }
-    public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
 
     public String getOccasionType() { return occasionType; }
     public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
