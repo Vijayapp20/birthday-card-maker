@@ -31,7 +31,7 @@ export default function App() {
         })
       })
       .catch(() => {
-        setError('This birthday card link is invalid or has expired.')
+        setError('This celebration card link is invalid or has expired.')
       })
       .finally(() => setLoading(false))
   }, [])
@@ -42,7 +42,7 @@ export default function App() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100vh', color: '#fff', fontFamily: 'sans-serif', fontSize: '1.2rem'
       }}>
-        Loading your birthday card... 🎂
+        Loading your celebration card... 🎉
       </div>
     )
   }
