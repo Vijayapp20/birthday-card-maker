@@ -6,12 +6,10 @@ public class CardRequest {
     private String relationship;
     private String message;
     private String photoUrl;
-    private String characterGif; // e.g. "pusn", "mikir", "g5" etc.
-    private String occasionType;  // e.g. "birthday", "anniversary", "graduation", "newjob", "babyshower"
-    private String occasionType;  // e.g. "birthday", "anniversary", "graduation"
+    private String characterGif;
+    private String occasionType;
 
-    public CardRequest() {
-    }
+    public CardRequest() {}
 
     public String getRecipientName() { return recipientName; }
     public void setRecipientName(String recipientName) { this.recipientName = recipientName; }
