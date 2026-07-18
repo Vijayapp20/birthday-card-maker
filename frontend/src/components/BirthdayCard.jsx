@@ -304,7 +304,7 @@ export default function BirthdayCard({ cardData, onBack }) {
         </button>
       )}
 
-      <div className="rahul-branding">
+      <div className="footer-bottom">
         <b>made with ❤️ by <span>@vijayprasanth</span></b>
       </div>
     </div>
