@@ -22,36 +22,56 @@ public class MessageService {
 
     private String buildPrompt(MessageRequest req) {
         String occasion = (req.occasionType() != null && !req.occasionType().isBlank())
-                ? req.occasionType()
-                : "celebration";
+                ? req.occasionType() : "celebration";
+
+        String relationshipTone = getRelationshipTone(req.relationship());
+        String occasionTone     = getOccasionTone(occasion);
 
         return String.format(
-            "You are a warm and heartfelt message writer for special occasions.%n%n" +
-            "Write a sincere, emotional, and uplifting message with these details:%n" +
-            "- Recipient's Name: %s%n" +
-            "- Sender's Name: %s%n" +
-            "- Relationship: %s (the recipient is the sender's %s)%n" +
+            "You are a heartfelt message writer for special occasions.%n%n" +
+            "Write a warm, personal message (50-60 words) for:%n" +
+            "- Recipient: %s%n" +
+            "- From: %s%n" +
+            "- Relationship: %s%n" +
             "- Occasion: %s%n%n" +
-            "Requirements:%n" +
-            "- Make it personal using both names%n" +
-            "- Tone must match the occasion appropriately%n" +
-            "- Anniversary: romantic, nostalgic%n" +
-            "- Graduation: proud, encouraging%n" +
-            "- New Job or Promotion: motivating, excited%n" +
-            "- New Home: warm, excited%n" +
-            "- Baby Shower or New Born: joyful, tender%n" +
-            "- Engagement: romantic, joyful%n" +
-            "- Birthday: warm, celebratory%n" +
-            "- Custom or Other: match the occasion tone appropriately%n" +
-            "- 3-5 sentences max, no bullet points%n" +
-            "- End with a warm closing line that fits the occasion%n" +
-            "- Do NOT start with greetings like Happy Birthday or Congratulations (the card already has them)%n" +
-            "- Write ONLY the message body, nothing else",
-            req.recipientName(),
-            req.senderName(),
-            req.relationship(),
-            req.relationship(),
-            occasion
+            "Tone guide:%n" +
+            "- Relationship tone: %s%n" +
+            "- Occasion tone: %s%n%n" +
+            "Rules:%n" +
+            "- Use both names naturally%n" +
+            "- 3-4 sentences, no bullet points%n" +
+            "- End with a warm closing%n" +
+            "- Do NOT open with greetings (already on card)%n" +
+            "- Write ONLY the message body",
+            req.recipientName(), req.senderName(),
+            req.relationship(), occasion,
+            relationshipTone, occasionTone
         );
+    }
+
+    private String getRelationshipTone(String relationship) {
+        if (relationship == null) return "warm and sincere";
+        return switch (relationship.toLowerCase()) {
+            case "wife", "husband", "lover" -> "deeply romantic, intimate, and passionate";
+            case "mother", "father"         -> "respectful, grateful, and loving";
+            case "brother", "sister"        -> "playful, warm, and sibling-bond-filled";
+            case "friend"                   -> "fun, genuine, and heartfelt";
+            case "children"                 -> "proud, tender, and encouraging";
+            case "engagement"               -> "romantic and joyful";
+            default                         -> "warm, sincere, and personal";
+        };
+    }
+
+    private String getOccasionTone(String occasion) {
+        return switch (occasion.toLowerCase()) {
+            case "birthday"    -> "celebratory, joyful, life-affirming";
+            case "anniversary" -> "romantic, nostalgic, timeless";
+            case "graduation"  -> "proud, inspiring, forward-looking";
+            case "newjob"      -> "motivating, excited, encouraging";
+            case "newhome"     -> "warm, excited, homey";
+            case "babyshower"  -> "joyful, tender, hopeful";
+            case "engagement"  -> "romantic, joyful, future-focused";
+            default            -> "heartfelt, celebratory, uplifting";
+        };
     }
 }
