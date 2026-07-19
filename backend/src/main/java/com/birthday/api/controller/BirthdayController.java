@@ -76,7 +76,7 @@ public class BirthdayController {
     public ResponseEntity<?> createCard(@RequestBody CardRequest request) {
         try {
             CardResponse response = cardService.saveCard(request);
-            log.info("Card saved with id: {}", response.id());
+            log.info("Card saved with id: {}", response.getId());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error saving card: {}", e.getMessage());
