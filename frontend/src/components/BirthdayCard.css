@@ -155,7 +155,7 @@
 }
 
 /* Toggle buttons */
-.music-toggle, .share-toggle, .back-toggle {
+.share-toggle, .back-toggle {
   position: fixed; top: 16px; z-index: 9999;
   border: none; border-radius: 999px;
   width: auto; height: 44px; padding: 0 16px;
@@ -166,10 +166,9 @@
   border: 1px solid rgba(255,255,255,0.25);
   color: #fff; cursor: pointer; transition: background 0.2s ease;
 }
-.music-toggle:hover, .share-toggle:hover, .back-toggle:hover {
+.share-toggle:hover, .back-toggle:hover {
   background: rgba(255,255,255,0.28);
 }
-.music-toggle { right: 16px; }
 .share-toggle { right: 16px; top: 70px; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .back-toggle  { left: 16px; font-size: 14px; font-weight: 700; white-space: nowrap; }
 

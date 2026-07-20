@@ -41,33 +41,7 @@ function getOccasionConfig(type) {
   }
 }
 
-// Celebration melody using Web Audio API
-const HBD_NOTES = [
-  [392, 0.4], [392, 0.2], [440, 0.6], [392, 0.6], [523.25, 0.6], [493.88, 1.2],
-  [392, 0.4], [392, 0.2], [440, 0.6], [392, 0.6], [587.33, 0.6], [523.25, 1.2],
-  [392, 0.4], [392, 0.2], [783.99, 0.6], [659.25, 0.6], [523.25, 0.6], [493.88, 0.6], [440, 1.2],
-  [698.46, 0.4], [698.46, 0.2], [659.25, 0.6], [523.25, 0.6], [587.33, 0.6], [523.25, 1.4],
-]
 
-function playTune(ctx, onDone) {
-  let t = ctx.currentTime + 0.05
-  HBD_NOTES.forEach(([freq, dur]) => {
-    const osc  = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.type = 'triangle'
-    osc.frequency.value = freq
-    gain.gain.setValueAtTime(0.0001, t)
-    gain.gain.linearRampToValueAtTime(0.18, t + 0.03)
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.95)
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.start(t)
-    osc.stop(t + dur)
-    t += dur
-  })
-  const total = HBD_NOTES.reduce((s, [, d]) => s + d, 0)
-  return setTimeout(onDone, total * 1000 + 300)
-}
 
 function fireConfetti() {
   const duration = 3000
@@ -105,11 +79,10 @@ export default function BirthdayCard({ cardData, onBack }) {
   const [sliderReady, setSliderReady] = useState(false)
   const [wallZoom,    setWallZoom]    = useState(false)
   const [hearts,      setHearts]      = useState([])
-  const [musicOn,     setMusicOn]     = useState(false)
+
   const [copied,      setCopied]      = useState(false)
 
-  const audioCtxRef   = useRef(null)
-  const musicTimerRef = useRef(null)
+
   const kalimatRef    = useRef(null)
   const heartTimerRef = useRef(null)
   const heartIdRef    = useRef(0)
@@ -117,19 +90,7 @@ export default function BirthdayCard({ cardData, onBack }) {
 
   const bgImage = wp2
 
-  const toggleMusic = useCallback(() => {
-    if (musicOn) {
-      clearTimeout(musicTimerRef.current)
-      if (audioCtxRef.current) { audioCtxRef.current.close(); audioCtxRef.current = null }
-      setMusicOn(false)
-      return
-    }
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    audioCtxRef.current = ctx
-    setMusicOn(true)
-    const loop = () => { if (!audioCtxRef.current) return; musicTimerRef.current = playTune(ctx, loop) }
-    loop()
-  }, [musicOn])
+
 
   const shareUrl = shareId
     ? `${window.location.origin}${window.location.pathname}?card=${shareId}`
@@ -224,8 +185,6 @@ export default function BirthdayCard({ cardData, onBack }) {
 
   useEffect(() => () => {
     clearInterval(heartTimerRef.current)
-    clearTimeout(musicTimerRef.current)
-    if (audioCtxRef.current) audioCtxRef.current.close()
   }, [])
 
   return (
@@ -293,10 +252,6 @@ export default function BirthdayCard({ cardData, onBack }) {
       {onBack && (
         <button className="back-toggle" onClick={onBack} title="Go back">← Back</button>
       )}
-
-      <button className="music-toggle" onClick={toggleMusic} title="Toggle music">
-        {musicOn ? '🔊' : '🔇'}
-      </button>
 
       {shareUrl && (
         <button className="share-toggle" onClick={handleCopyLink} title="Copy shareable link">
