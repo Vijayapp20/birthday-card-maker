@@ -3,7 +3,7 @@ package com.birthday.api.service;
 import com.birthday.api.dto.CardRequest;
 import com.birthday.api.dto.CardResponse;
 import com.birthday.api.entity.BirthdayCardEntity;
-import com.birthday.api.repository.BirthdayCardRepository;
+import com.birthday.api.repository.PhotoUploadRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -12,9 +12,9 @@ import java.util.UUID;
 @Service
 public class CardService {
 
-    private final BirthdayCardRepository birthdayCardRepository;
+    private final PhotoUploadRepository birthdayCardRepository;
 
-    public CardService(BirthdayCardRepository birthdayCardRepository) {
+    public CardService(PhotoUploadRepository birthdayCardRepository) {
         this.birthdayCardRepository = birthdayCardRepository;
     }
 
