@@ -12,23 +12,23 @@ public class CardRequest {
     public CardRequest() {}
 
     public String getRecipientName() { return recipientName; }
-    public void setRecipientName(String recipientName) { this.recipientName = recipientName; }
+    public void setRecipientName(String v) { this.recipientName = v; }
 
     public String getSenderName() { return senderName; }
-    public void setSenderName(String senderName) { this.senderName = senderName; }
+    public void setSenderName(String v) { this.senderName = v; }
 
     public String getRelationship() { return relationship; }
-    public void setRelationship(String relationship) { this.relationship = relationship; }
+    public void setRelationship(String v) { this.relationship = v; }
 
     public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public void setMessage(String v) { this.message = v; }
 
     public String getPhotoUrl() { return photoUrl; }
-    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+    public void setPhotoUrl(String v) { this.photoUrl = v; }
 
     public String getCharacterGif() { return characterGif; }
-    public void setCharacterGif(String characterGif) { this.characterGif = characterGif; }
+    public void setCharacterGif(String v) { this.characterGif = v; }
 
     public String getOccasionType() { return occasionType; }
-    public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
+    public void setOccasionType(String v) { this.occasionType = v; }
 }
