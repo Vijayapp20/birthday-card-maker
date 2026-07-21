@@ -36,15 +36,14 @@ public class MessageService {
             "- Occasion: %s%n%n" +
             "Tone: %s + %s%n%n" +
             "STRICT RULES:%n" +
-            "- MAXIMUM 60 words, MINIMUM 50 words - count carefully%n" +
-            "- Do NOT mention birthday, age, or year of life unless occasion is birthday%n" +
-            "- Match the occasion: write about %s specifically%n" +
+            "- MAXIMUM 60 words, MINIMUM 50 words%n" +
+            "- Match the occasion exactly - write about %s specifically%n" +
+            "- Do NOT mention unrelated occasions (e.g. no 'year of life' for job, no 'another year' for graduation)%n" +
             "- Use both names naturally%n" +
             "- 2-3 sentences only%n" +
             "- Warm closing that fits the occasion%n" +
             "- Do NOT start with Happy/Congratulations (card already has it)%n" +
-            "- Write ONLY the message body, nothing else%n" +
-            "- STOP at 60 words",
+            "- Write ONLY the message body",
             req.recipientName(),
             req.senderName(),
             req.relationship(),
@@ -69,14 +68,14 @@ public class MessageService {
 
     private String getOccasionTone(String occasion) {
         return switch (occasion.toLowerCase()) {
-            case "birthday"    -> "celebratory and life-affirming";
+            case "celebration" -> "heartfelt and celebratory";
             case "anniversary" -> "romantic and nostalgic";
             case "graduation"  -> "proud and inspiring";
             case "newjob"      -> "motivating and excited about the new career chapter";
             case "newhome"     -> "warm and excited about the new home";
             case "babyshower"  -> "joyful and tender about the new arrival";
             case "engagement"  -> "romantic and joyful about the future together";
-            default            -> "heartfelt and celebratory";
+            default            -> "heartfelt and celebratory for " + occasion;
         };
     }
 }
