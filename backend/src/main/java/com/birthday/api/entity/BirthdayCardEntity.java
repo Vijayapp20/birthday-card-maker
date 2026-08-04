@@ -33,6 +33,9 @@ public class BirthdayCardEntity {
     @Column(name = "occasion_type")
     private String occasionType;
 
+    @Column(name = "template")
+    private String template;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -66,6 +69,9 @@ public class BirthdayCardEntity {
 
     public String getOccasionType() { return occasionType; }
     public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
+
+    public String getTemplate() { return template; }
+    public void setTemplate(String template) { this.template = template; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

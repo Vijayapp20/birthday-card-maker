@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS birthday_cards (
   relationship    VARCHAR(100)  NOT NULL,
   message         TEXT          NOT NULL,
   photo_url       VARCHAR(500)  COMMENT 'Relative URL e.g. /uploads/uuid.jpg',
+  character_gif   VARCHAR(50)   COMMENT 'Selected character key for Template 1 slideshow',
+  occasion_type   VARCHAR(50)   COMMENT 'birthday, anniversary, graduation, etc.',
+  template        VARCHAR(20)   COMMENT 'photo (Template 1) or letter (Template 2)',
   created_at      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (id)

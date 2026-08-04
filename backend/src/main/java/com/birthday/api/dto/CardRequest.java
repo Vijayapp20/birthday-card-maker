@@ -8,6 +8,7 @@ public class CardRequest {
     private String photoUrl;
     private String characterGif;
     private String occasionType;
+    private String template;
 
     public CardRequest() {}
 
@@ -31,4 +32,7 @@ public class CardRequest {
 
     public String getOccasionType() { return occasionType; }
     public void setOccasionType(String v) { this.occasionType = v; }
+
+    public String getTemplate() { return template; }
+    public void setTemplate(String v) { this.template = v; }
 }

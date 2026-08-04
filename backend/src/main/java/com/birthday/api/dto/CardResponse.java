@@ -9,11 +9,13 @@ public class CardResponse {
     private String photoUrl;
     private String characterGif;
     private String occasionType;
+    private String template;
 
     public CardResponse() {}
 
     public CardResponse(String id, String recipientName, String senderName, String relationship,
-                        String message, String photoUrl, String characterGif, String occasionType) {
+                        String message, String photoUrl, String characterGif, String occasionType,
+                        String template) {
         this.id = id;
         this.recipientName = recipientName;
         this.senderName = senderName;
@@ -22,6 +24,7 @@ public class CardResponse {
         this.photoUrl = photoUrl;
         this.characterGif = characterGif;
         this.occasionType = occasionType;
+        this.template = template;
     }
 
     public String getId() { return id; }
@@ -47,4 +50,7 @@ public class CardResponse {
 
     public String getOccasionType() { return occasionType; }
     public void setOccasionType(String occasionType) { this.occasionType = occasionType; }
+
+    public String getTemplate() { return template; }
+    public void setTemplate(String template) { this.template = template; }
 }

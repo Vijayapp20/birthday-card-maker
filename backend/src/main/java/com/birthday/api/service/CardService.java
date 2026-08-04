@@ -28,6 +28,7 @@ public class CardService {
         entity.setPhotoUrl(request.getPhotoUrl());
         entity.setCharacterGif(request.getCharacterGif());
         entity.setOccasionType(request.getOccasionType());
+        entity.setTemplate(request.getTemplate());
 
         BirthdayCardEntity saved = birthdayCardRepository.save(entity);
         return toResponse(saved);
@@ -48,7 +49,8 @@ public class CardService {
                 entity.getMessage(),
                 entity.getPhotoUrl(),
                 entity.getCharacterGif(),
-                entity.getOccasionType()
+                entity.getOccasionType(),
+                entity.getTemplate()
         );
     }
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react' // v2
 import api from './api'
 import BirthdayForm from './components/BirthdayForm'
 import BirthdayCard from './components/BirthdayCard'
+import LetterCard from './components/LetterCard'
 
 export default function App() {
   const [cardData, setCardData] = useState(null)
@@ -28,6 +29,7 @@ export default function App() {
           photoUrl: data.photoUrl,
           characterGif: data.characterGif || 'g5',
           occasionType: data.occasionType || 'birthday',
+          template: data.template || 'photo',
         })
       })
       .catch(() => {
@@ -60,11 +62,14 @@ export default function App() {
   }
 
   if (cardData) {
-    return <BirthdayCard cardData={cardData} onBack={isSharedView ? undefined : () => {
+    const onBack = isSharedView ? undefined : () => {
       // Clear any ?card=ID from the URL and go back to the form
       window.history.replaceState({}, '', window.location.pathname)
       setCardData(null)
-    }} />
+    }
+    return cardData.template === 'letter'
+      ? <LetterCard cardData={cardData} onBack={onBack} />
+      : <BirthdayCard cardData={cardData} onBack={onBack} />
   }
 
   return <BirthdayForm onStart={setCardData} />

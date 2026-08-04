@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import api from '../api'
 import { autoCropToFace, PhotoValidationError } from '../utils/faceCrop'
+import TemplateSelect from './TemplateSelect'
 import './BirthdayForm.css'
 
 // GIF character options for the 5th slide
@@ -51,6 +52,8 @@ export default function BirthdayForm({ onStart }) {
   const [faceDetected, setFaceDetected]             = useState(null)
   const [loading, setLoading]                       = useState(false)
   const [error, setError]                           = useState('')
+  const [preparedData, setPreparedData]             = useState(null) // set once submit succeeds; triggers template picker
+  const [savingTemplate, setSavingTemplate]         = useState(false)
   const fileRef = useRef(null)
 
   const handlePhoto = async (e) => {
@@ -108,22 +111,11 @@ export default function BirthdayForm({ onStart }) {
         finalMessage = res.data.message
       }
 
-      let shareId = null
-      try {
-        const saveRes = await api.post('/api/cards', {
-          recipientName, senderName, relationship,
-          message: finalMessage, photoUrl,
-          characterGif: selectedCharacter,
-          occasionType: getFinalOccasion(),
-        })
-        shareId = saveRes.data.id
-      } catch (saveErr) {
-        console.error('Failed to save shareable card:', saveErr)
-      }
-
-      onStart({
+      // Don't save or hand off to the parent yet — let the user pick a template first,
+      // so the shareable card is stored with the template they actually chose.
+      setPreparedData({
         recipientName, senderName, relationship,
-        message: finalMessage, photoUrl, shareId,
+        message: finalMessage, photoUrl,
         characterGif: selectedCharacter,
         occasionType: getFinalOccasion(),
       })
@@ -132,6 +124,31 @@ export default function BirthdayForm({ onStart }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleChooseTemplate = async (template) => {
+    setSavingTemplate(true)
+    let shareId = null
+    try {
+      const saveRes = await api.post('/api/cards', { ...preparedData, template })
+      shareId = saveRes.data.id
+    } catch (saveErr) {
+      console.error('Failed to save shareable card:', saveErr)
+    } finally {
+      setSavingTemplate(false)
+    }
+    onStart({ ...preparedData, shareId, template })
+  }
+
+  if (preparedData) {
+    return (
+      <TemplateSelect
+        recipientName={preparedData.recipientName}
+        onChoose={handleChooseTemplate}
+        onBack={() => setPreparedData(null)}
+        saving={savingTemplate}
+      />
+    )
   }
 
   return (
