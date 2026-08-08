@@ -85,6 +85,21 @@ export default function BirthdayForm({ onStart }) {
   const getFinalOccasion = () =>
     occasionType === 'custom' ? (customOccasion.trim() || 'custom') : occasionType
 
+  // Saves the card with the given template and hands off to the parent.
+  const finalizeCard = async (data, template) => {
+    setSavingTemplate(true)
+    let shareId = null
+    try {
+      const saveRes = await api.post('/api/cards', { ...data, template })
+      shareId = saveRes.data.id
+    } catch (saveErr) {
+      console.error('Failed to save shareable card:', saveErr)
+    } finally {
+      setSavingTemplate(false)
+    }
+    onStart({ ...data, shareId, template })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -112,14 +127,20 @@ export default function BirthdayForm({ onStart }) {
         finalMessage = res.data.message
       }
 
-      // Don't save or hand off to the parent yet — let the user pick a template first,
-      // so the shareable card is stored with the template they actually chose.
-      setPreparedData({
+      const data = {
         recipientName, senderName, relationship,
         message: finalMessage, photoUrl,
         characterGif: getCharacterForRelationship(relationship),
         occasionType: getFinalOccasion(),
-      })
+      }
+
+      if (photoUrl) {
+        // Photo uploaded → go straight to the photo/slideshow template, no need to ask.
+        await finalizeCard(data, 'photo')
+      } else {
+        // No photo → let them pick a template (e.g. the letter style, which needs no photo).
+        setPreparedData(data)
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.')
     } finally {
@@ -127,19 +148,7 @@ export default function BirthdayForm({ onStart }) {
     }
   }
 
-  const handleChooseTemplate = async (template) => {
-    setSavingTemplate(true)
-    let shareId = null
-    try {
-      const saveRes = await api.post('/api/cards', { ...preparedData, template })
-      shareId = saveRes.data.id
-    } catch (saveErr) {
-      console.error('Failed to save shareable card:', saveErr)
-    } finally {
-      setSavingTemplate(false)
-    }
-    onStart({ ...preparedData, shareId, template })
-  }
+  const handleChooseTemplate = (template) => finalizeCard(preparedData, template)
 
   if (preparedData) {
     return (
