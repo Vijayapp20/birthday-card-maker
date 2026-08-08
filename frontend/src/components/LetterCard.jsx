@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
 import Swal from 'sweetalert2'
@@ -15,6 +16,14 @@ function fireSoftConfetti() {
     scalar: 0.8,
   })
 }
+
+// Subtle SVG fractal-noise texture, applied as a low-opacity multiply
+// overlay so the paper reads as fibrous/textured rather than a flat fill.
+const PAPER_NOISE_URL =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"
+
+const flapSpring   = { type: 'spring', stiffness: 110, damping: 14 }
+const paperSpring  = { type: 'spring', stiffness: 130, damping: 16 }
 
 export default function LetterCard({ cardData, onBack }) {
   const { recipientName, senderName, message, relationship, occasionType, shareId } = cardData
@@ -101,38 +110,62 @@ export default function LetterCard({ cardData, onBack }) {
       ))}
 
       <div className="lc-stage">
-        {(stage === 'envelope' || stage === 'opening') && (
-          <div className={`lc-envelope${stage === 'opening' ? ' open' : ''}`} onClick={handleOpen}>
-            <div className="lc-envelope-shadow" />
-            <div className="lc-envelope-back" />
-            <div className="lc-stamp">
-              <div className="lc-stamp-icon">🎉</div>
-            </div>
-            <div className="lc-envelope-letter-peek" />
-            <div className="lc-envelope-flap" />
-            <div className="lc-envelope-front-left" />
-            <div className="lc-envelope-front-right" />
-            <div className="lc-seal">
-              <span className="lc-seal-shine" />
-              <svg viewBox="0 0 24 24" className="lc-seal-icon">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-            </div>
-            {stage === 'envelope' && (
-              <p className="lc-tap-hint">Tap to open your letter, {recipientName} 💫</p>
-            )}
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {(stage === 'envelope' || stage === 'opening') && (
+            <motion.div
+              key="envelope"
+              className="lc-envelope"
+              onClick={handleOpen}
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+              exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.3 } }}
+            >
+              <div className="lc-envelope-shadow" />
+              <div className="lc-envelope-back" />
+              <div className="lc-stamp"><div className="lc-stamp-icon">🎉</div></div>
+              <div className={`lc-envelope-letter-peek${stage === 'opening' ? ' open' : ''}`} />
 
-        {(stage === 'writing' || stage === 'done') && (
-          <div className={`lc-paper${stage === 'done' ? ' settled glow' : ''}`}>
-            <div className="lc-paper-inner">
-              <p className="lc-title">{occ.cardTitle}</p>
-              {relationship && <p className="lc-subtitle">for my dear {relationship.toLowerCase()}</p>}
-              <p className={`lc-body${stage === 'writing' ? ' writing' : ''}`} ref={letterBodyRef} />
-            </div>
-          </div>
-        )}
+              {/* Spring-driven flap — real paper doesn't ease linearly, it swings and settles */}
+              <motion.div
+                className="lc-envelope-flap"
+                style={{ transformOrigin: 'top center' }}
+                animate={{ rotateX: stage === 'opening' ? 175 : 0 }}
+                transition={flapSpring}
+              />
+
+              <div className="lc-envelope-front-left" />
+              <div className="lc-envelope-front-right" />
+              <div className={`lc-seal${stage === 'opening' ? ' open' : ''}`}>
+                <span className="lc-seal-shine" />
+                <svg viewBox="0 0 24 24" className="lc-seal-icon">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+              </div>
+              {stage === 'envelope' && (
+                <p className="lc-tap-hint">Tap to open your letter, {recipientName} 💫</p>
+              )}
+            </motion.div>
+          )}
+
+          {(stage === 'writing' || stage === 'done') && (
+            <motion.div
+              key="paper"
+              className={`lc-paper${stage === 'done' ? ' glow' : ''}`}
+              initial={{ opacity: 0, scaleY: 0.32, y: 26, rotate: -2.2 }}
+              animate={{ opacity: 1, scaleY: 1, y: 0, rotate: -0.6 }}
+              transition={paperSpring}
+            >
+              <div className="lc-paper-noise" style={{ backgroundImage: `url("${PAPER_NOISE_URL}")` }} />
+              <div className="lc-paper-fold-lines" />
+              <div className="lc-paper-inner">
+                <p className="lc-title">{occ.cardTitle}</p>
+                {relationship && <p className="lc-subtitle">for my dear {relationship.toLowerCase()}</p>}
+                <p className={`lc-body${stage === 'writing' ? ' writing' : ''}`} ref={letterBodyRef} />
+              </div>
+              <div className="lc-paper-curl" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {onBack && (

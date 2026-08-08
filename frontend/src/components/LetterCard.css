@@ -77,19 +77,18 @@
   transition: transform 0.65s cubic-bezier(0.33, 1, 0.68, 1) 0.7s;
   z-index: 1;
 }
-.lc-envelope.open .lc-envelope-letter-peek { transform: translateY(-18%); }
+.lc-envelope-letter-peek.open { transform: translateY(-18%); }
 
+/* Rotation itself is now driven by framer-motion (spring physics via the
+   animate prop) — this rule only sets the base look + 3D transform origin. */
 .lc-envelope-flap {
   position: absolute; top: 0; left: 0; right: 0;
   height: 55%;
   background: linear-gradient(135deg, #eec48f 0%, #dba86a 100%);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: top center;
-  transition: transform 0.68s cubic-bezier(0.65, 0, 0.35, 1);
   z-index: 3;
   box-shadow: 0 4px 10px rgba(120, 80, 40, 0.15);
 }
-.lc-envelope.open .lc-envelope-flap { transform: rotateX(175deg); }
 
 .lc-envelope-front-left,
 .lc-envelope-front-right {
@@ -129,7 +128,7 @@
   width: 18px; height: 18px; fill: rgba(255,255,255,0.92);
   filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25));
 }
-.lc-envelope.open .lc-seal { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+.lc-seal.open { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
 
 .lc-tap-hint {
   position: absolute; bottom: -44px; left: 0; right: 0;
@@ -138,23 +137,29 @@
 }
 
 /* ---------- Letter paper ---------- */
+/* Transform/opacity entrance is now driven entirely by framer-motion
+   (spring physics — see LetterCard.jsx). This rule only sets the static
+   look: torn top edge, ruled-paper background, scroll behavior. */
 .lc-paper {
+  position: relative;
   width: min(92vw, 460px);
   max-height: 78vh;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #fffdf8;
-  background-image:
-    repeating-linear-gradient(#fffdf8 0 33px, #f4ecd8 34px),
-    radial-gradient(rgba(120, 90, 50, 0.035) 1px, transparent 1px);
-  background-size: auto, 3px 3px;
-  border-radius: 6px 6px 18px 18px;
+  background-image: repeating-linear-gradient(#fffdf8 0 33px, #f4ecd8 34px);
+  border-radius: 4px 4px 18px 18px;
   box-shadow: 0 20px 45px rgba(120, 80, 40, 0.28);
   padding: 6px;
-  transform: scaleY(0.35) translateY(20px);
-  opacity: 0;
-  transform-origin: top center;
-  animation: lcUnfold 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transition: box-shadow 0.6s ease;
+
+  /* Deckled/torn top edge — a real hand-torn sheet, not a machine-cut rectangle */
+  clip-path: polygon(
+    0% 4%, 5% 0%, 10% 3%, 15% 0.5%, 20% 3%, 25% 0%, 30% 2.5%, 35% 0.5%,
+    40% 3%, 45% 0%, 50% 2%, 55% 0.5%, 60% 3%, 65% 0%, 70% 2.5%, 75% 0.5%,
+    80% 3%, 85% 0%, 90% 2.5%, 95% 0.5%, 100% 4%,
+    100% 100%, 0% 100%
+  );
 
   /* Fade top/bottom edges of the scrollable area so text never looks
      abruptly clipped mid-scroll. */
@@ -169,12 +174,6 @@
 .lc-paper::-webkit-scrollbar-thumb {
   background: rgba(201, 67, 111, 0.35); border-radius: 10px;
 }
-@keyframes lcUnfold {
-  0%   { transform: scaleY(0.3) translateY(30px); opacity: 0; }
-  60%  { opacity: 1; }
-  100% { transform: scaleY(1) translateY(0); opacity: 1; }
-}
-.lc-paper.settled { animation: none; transform: scaleY(1) translateY(0); opacity: 1; }
 
 /* Gentle finishing glow once the letter is fully written */
 .lc-paper.glow {
@@ -185,7 +184,39 @@
   50%      { box-shadow: 0 20px 45px rgba(120, 80, 40, 0.28), 0 0 26px rgba(201, 67, 111, 0.35); }
 }
 
+/* Fibrous paper-grain texture, low-opacity multiply overlay (SVG feTurbulence) */
+.lc-paper-noise {
+  position: absolute; inset: 0;
+  background-repeat: repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Two faint horizontal creases, like the sheet was folded in thirds
+   to fit the envelope — a small detail that reads as "real" instantly */
+.lc-paper-fold-lines {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1;
+  background:
+    linear-gradient(to bottom, transparent calc(33.3% - 1px), rgba(120,80,40,0.10) 33.3%, rgba(255,255,255,0.35) calc(33.3% + 1px), transparent calc(33.3% + 3px)),
+    linear-gradient(to bottom, transparent calc(66.6% - 1px), rgba(120,80,40,0.10) 66.6%, rgba(255,255,255,0.35) calc(66.6% + 1px), transparent calc(66.6% + 3px));
+}
+
+/* Lifted bottom-right corner, like a page that's been handled/read before */
+.lc-paper-curl {
+  position: absolute; right: 0; bottom: 0;
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, #fffdf8 45%, #e9dcc3 50%, #fffdf8 60%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  box-shadow: -3px -3px 7px rgba(120,80,40,0.22);
+  pointer-events: none;
+  z-index: 2;
+}
+
 .lc-paper-inner {
+  position: relative; z-index: 1;
   border: 1px solid rgba(180, 140, 90, 0.25);
   border-radius: 4px 4px 14px 14px;
   padding: 28px 22px 34px;
