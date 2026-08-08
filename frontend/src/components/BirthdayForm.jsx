@@ -4,25 +4,6 @@ import { autoCropToFace, PhotoValidationError } from '../utils/faceCrop'
 import TemplateSelect from './TemplateSelect'
 import './BirthdayForm.css'
 
-// GIF character options for the 5th slide
-import pusn       from '../assets/pusn.gif'
-import mikir      from '../assets/mikir.gif'
-import cilukba    from '../assets/cilukba.gif'
-import g5         from '../assets/g5.gif'
-import mndkat     from '../assets/mndkat.gif'
-import pandaputih from '../assets/pandaputih.gif'
-import pandapanah from '../assets/pandapanah.gif'
-
-const CHARACTERS = [
-  { key: 'g5',         src: g5,         label: '🎉 Party'  },
-  { key: 'pusn',       src: pusn,       label: '🐱 Cute'   },
-  { key: 'mikir',      src: mikir,      label: '🤔 Think'  },
-  { key: 'cilukba',    src: cilukba,    label: '👀 Peek'   },
-  { key: 'mndkat',     src: mndkat,     label: '🥰 Love'   },
-  { key: 'pandaputih', src: pandaputih, label: '🐼 Panda'  },
-  { key: 'pandapanah', src: pandapanah, label: '🏹 Arrow'  },
-]
-
 const OCCASIONS = [
   { key: 'birthday',    label: '🎂 Birthday'    },
   { key: 'anniversary', label: '💍 Anniversary'  },
@@ -36,6 +17,27 @@ const OCCASIONS = [
 
 const RELATIONSHIPS = ['Father', 'Mother', 'Wife', 'Husband', 'Children', 'Lover', 'Friend', 'Brother', 'Sister', 'Other']
 
+// Auto-pick a character based on relationship — no manual selection needed in the UI.
+const RELATIONSHIP_CHARACTER_MAP = {
+  Father: 'cilukba', Mother: 'cilukba',
+  Wife: 'mndkat', Husband: 'mndkat', Lover: 'mndkat',
+  Children: 'pandaputih',
+  Friend: 'g5',
+  Brother: 'pusn', Sister: 'pusn',
+  Other: 'g5',
+}
+
+const getCharacterForRelationship = (rel) => {
+  if (RELATIONSHIP_CHARACTER_MAP[rel]) return RELATIONSHIP_CHARACTER_MAP[rel]
+  const lower = (rel || '').toLowerCase()
+  if (/husband|wife|lover|boyfriend|girlfriend|spouse|fiance/.test(lower)) return 'mndkat'
+  if (/brother|sister|sibling/.test(lower)) return 'pusn'
+  if (/mother|father|parent|mom|dad/.test(lower)) return 'cilukba'
+  if (/child|son|daughter|kid/.test(lower)) return 'pandaputih'
+  if (/friend/.test(lower)) return 'g5'
+  return 'g5'
+}
+
 export default function BirthdayForm({ onStart }) {
   const [recipientName, setRecipientName]           = useState('')
   const [senderName, setSenderName]                 = useState('')
@@ -45,7 +47,6 @@ export default function BirthdayForm({ onStart }) {
   const [customOccasion, setCustomOccasion]         = useState('')
   const [messageType, setMessageType]               = useState('custom')
   const [customMessage, setCustomMessage]           = useState('')
-  const [selectedCharacter, setSelectedCharacter]   = useState('g5')
   const [photo, setPhoto]                           = useState(null)
   const [photoPreview, setPhotoPreview]             = useState(null)
   const [cropping, setCropping]                     = useState(false)
@@ -116,7 +117,7 @@ export default function BirthdayForm({ onStart }) {
       setPreparedData({
         recipientName, senderName, relationship,
         message: finalMessage, photoUrl,
-        characterGif: selectedCharacter,
+        characterGif: getCharacterForRelationship(relationship),
         occasionType: getFinalOccasion(),
       })
     } catch (err) {
@@ -245,21 +246,6 @@ export default function BirthdayForm({ onStart }) {
                 ✨ AI will generate a personalised message based on the occasion, names & relationship using <b>Groq (Llama3)</b>!
               </div>
             )}
-          </div>
-
-          {/* Character */}
-          <div className="field">
-            <label>🎭 Choose Character <span>(5th slide-ல வரும்)</span></label>
-            <div className="char-grid">
-              {CHARACTERS.map(ch => (
-                <button key={ch.key} type="button"
-                  className={`char-btn${selectedCharacter === ch.key ? ' active' : ''}`}
-                  onClick={() => setSelectedCharacter(ch.key)}>
-                  <img src={ch.src} alt={ch.label} />
-                  <span>{ch.label}</span>
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Photo */}
