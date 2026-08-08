@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import api from '../api'
 import { autoCropToFace, PhotoValidationError } from '../utils/faceCrop'
 import TemplateSelect from './TemplateSelect'
+import ManualCropModal from './ManualCropModal'
 import './BirthdayForm.css'
 
 const OCCASIONS = [
@@ -49,6 +50,8 @@ export default function BirthdayForm({ onStart }) {
   const [customMessage, setCustomMessage]           = useState('')
   const [photo, setPhoto]                           = useState(null)
   const [photoPreview, setPhotoPreview]             = useState(null)
+  const [originalPhotoFile, setOriginalPhotoFile]   = useState(null) // kept so "Adjust manually" can re-crop from the untouched source
+  const [showManualCrop, setShowManualCrop]         = useState(false)
   const [cropping, setCropping]                     = useState(false)
   const [faceDetected, setFaceDetected]             = useState(null)
   const [loading, setLoading]                       = useState(false)
@@ -67,19 +70,28 @@ export default function BirthdayForm({ onStart }) {
       setPhoto(croppedFile)
       setPhotoPreview(previewUrl)
       setFaceDetected(detected)
+      setOriginalPhotoFile(file)
     } catch (err) {
       if (err instanceof PhotoValidationError) {
         setError(err.message)
-        setPhoto(null); setPhotoPreview(null); setFaceDetected(null)
+        setPhoto(null); setPhotoPreview(null); setFaceDetected(null); setOriginalPhotoFile(null)
       } else {
         setPhoto(file)
         setPhotoPreview(URL.createObjectURL(file))
         setFaceDetected(null)
+        setOriginalPhotoFile(file)
       }
     } finally {
       setCropping(false)
       e.target.value = ''
     }
+  }
+
+  const handleManualCropConfirm = ({ file: croppedFile, previewUrl }) => {
+    setPhoto(croppedFile)
+    setPhotoPreview(previewUrl)
+    setFaceDetected('manual') // preview hint below shows a different message for this
+    setShowManualCrop(false)
   }
 
   const getFinalOccasion = () =>
@@ -277,14 +289,21 @@ export default function BirthdayForm({ onStart }) {
             {photoPreview && !cropping && (
               <>
                 <small className="photo-hint">
-                  {faceDetected === true  && '✅ Face detected — auto-cropped to 800×800'}
-                  {faceDetected === false && 'ℹ️ No face detected — center-cropped to 800×800'}
-                  {faceDetected === null  && '✅ Photo ready'}
+                  {faceDetected === true   && '✅ Face detected — auto-cropped to 800×800'}
+                  {faceDetected === false  && 'ℹ️ No face detected — center-cropped to 800×800'}
+                  {faceDetected === 'manual' && '🎯 Manually adjusted'}
+                  {faceDetected === null   && '✅ Photo ready'}
                 </small>
-                <button type="button" className="remove-photo"
-                  onClick={() => { setPhoto(null); setPhotoPreview(null); setFaceDetected(null) }}>
-                  ✕ Remove photo
-                </button>
+                <div className="photo-actions">
+                  <button type="button" className="adjust-photo"
+                    onClick={() => setShowManualCrop(true)}>
+                    🎯 Adjust manually
+                  </button>
+                  <button type="button" className="remove-photo"
+                    onClick={() => { setPhoto(null); setPhotoPreview(null); setFaceDetected(null); setOriginalPhotoFile(null) }}>
+                    ✕ Remove photo
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -299,6 +318,14 @@ export default function BirthdayForm({ onStart }) {
 
         </form>
       </div>
+
+      {showManualCrop && originalPhotoFile && (
+        <ManualCropModal
+          file={originalPhotoFile}
+          onCancel={() => setShowManualCrop(false)}
+          onConfirm={handleManualCropConfirm}
+        />
+      )}
     </div>
   )
 }
