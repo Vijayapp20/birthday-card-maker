@@ -9,8 +9,9 @@
 // to bundle/ship the binary model files ourselves.
 
 import * as faceapi from 'face-api.js'
+import { CROP_SIZE } from './cropConstants'
 
-export const CROP_SIZE = 800 // output is CROP_SIZE x CROP_SIZE px
+export { CROP_SIZE }
 
 // Validation limits for the *uploaded* photo, before cropping.
 export const MIN_DIMENSION   = 800        // px — below this, upscaling would blur the face crop

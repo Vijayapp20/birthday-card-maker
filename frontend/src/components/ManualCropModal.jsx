@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
-import { CROP_SIZE } from '../utils/faceCrop'
+import { CROP_SIZE } from '../utils/cropConstants'
 import './ManualCropModal.css'
 
 // Draws the user-picked crop area (in source-image pixel coords) onto a

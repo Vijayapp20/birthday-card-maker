@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../api'
-import { autoCropToFace, PhotoValidationError } from '../utils/faceCrop'
 import TemplateSelect from './TemplateSelect'
 import ManualCropModal from './ManualCropModal'
 import './BirthdayForm.css'
@@ -75,6 +74,10 @@ export default function BirthdayForm({ onStart }) {
     if (!file) return
     setError('')
     setCropping(true)
+    // face-api.js is a heavy ML library — only fetch it once the user
+    // actually picks a photo, instead of bundling it into the initial
+    // form load that every visitor pays for.
+    const { autoCropToFace, PhotoValidationError } = await import('../utils/faceCrop')
     try {
       const { file: croppedFile, previewUrl, faceDetected: detected } = await autoCropToFace(file)
       setPhoto(croppedFile)

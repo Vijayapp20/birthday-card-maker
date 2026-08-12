@@ -1,15 +1,28 @@
-import { useState, useEffect } from 'react' // v2
+import { useState, useEffect, lazy, Suspense } from 'react' // v2
 import { ParticlesProvider } from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
 import api from './api'
 import BirthdayForm from './components/BirthdayForm'
-import BirthdayCard from './components/BirthdayCard'
-import LetterCard from './components/LetterCard'
+
+// BirthdayCard pulls in three.js + vanta (~500KB) and LetterCard pulls in
+// framer-motion — neither is needed until the form is actually submitted,
+// so load them on demand instead of blocking the initial form render.
+const BirthdayCard = lazy(() => import('./components/BirthdayCard'))
+const LetterCard   = lazy(() => import('./components/LetterCard'))
 
 // Registers the lightweight ("slim") tsparticles engine once for the whole
 // app, so individual <Particles> instances (see AmbientParticles.jsx) don't
 // each pay the init cost.
 const initParticles = async (engine) => { await loadSlim(engine) }
+
+const CardLoadingFallback = (
+  <div style={{
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    height: '100vh', color: '#fff', fontFamily: 'sans-serif', fontSize: '1.2rem'
+  }}>
+    Loading your celebration card... 🎉
+  </div>
+)
 
 export default function App() {
   const [cardData, setCardData] = useState(null)
@@ -75,9 +88,13 @@ export default function App() {
         window.history.replaceState({}, '', window.location.pathname)
         setCardData(null)
       }
-      return cardData.template === 'letter'
-        ? <LetterCard cardData={cardData} onBack={onBack} />
-        : <BirthdayCard cardData={cardData} onBack={onBack} />
+      return (
+        <Suspense fallback={CardLoadingFallback}>
+          {cardData.template === 'letter'
+            ? <LetterCard cardData={cardData} onBack={onBack} />
+            : <BirthdayCard cardData={cardData} onBack={onBack} />}
+        </Suspense>
+      )
     }
 
     return <BirthdayForm onStart={setCardData} />
