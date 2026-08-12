@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import api from '../api'
 import { autoCropToFace, PhotoValidationError } from '../utils/faceCrop'
 import TemplateSelect from './TemplateSelect'
@@ -58,7 +58,17 @@ export default function BirthdayForm({ onStart }) {
   const [error, setError]                           = useState('')
   const [preparedData, setPreparedData]             = useState(null) // set once submit succeeds; triggers template picker
   const [savingTemplate, setSavingTemplate]         = useState(false)
+  const [warmingUp, setWarmingUp]                   = useState(true)
   const fileRef = useRef(null)
+
+  // Render's free tier spins the backend down when idle, so the FIRST
+  // request after a while can take 30–60s to "wake up" — which is what
+  // makes the submit button feel stuck. Ping a lightweight health
+  // endpoint the moment the form loads, so by the time the user finishes
+  // filling it in and hits submit, the backend is already warm.
+  useEffect(() => {
+    api.get('/api/health').catch(() => {}).finally(() => setWarmingUp(false))
+  }, [])
 
   const handlePhoto = async (e) => {
     const file = e.target.files[0]
@@ -123,21 +133,24 @@ export default function BirthdayForm({ onStart }) {
 
     setLoading(true)
     try {
-      let photoUrl = null
-      if (photo) {
-        const formData = new FormData()
-        formData.append('file', photo)
-        const res = await api.post('/api/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-        photoUrl = res.data.url
-      }
+      // Upload and AI-message-generation are independent — run them together
+      // instead of one-after-another, so total wait is max(both) not sum(both).
+      const uploadPromise = photo
+        ? (async () => {
+            const formData = new FormData()
+            formData.append('file', photo)
+            const res = await api.post('/api/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+            return res.data.url
+          })()
+        : Promise.resolve(null)
 
-      let finalMessage = customMessage
-      if (messageType === 'ai') {
-        const res = await api.post('/api/generate-message', {
-          recipientName, senderName, relationship, occasionType: getFinalOccasion(),
-        })
-        finalMessage = res.data.message
-      }
+      const messagePromise = messageType === 'ai'
+        ? api.post('/api/generate-message', {
+            recipientName, senderName, relationship, occasionType: getFinalOccasion(),
+          }).then(res => res.data.message)
+        : Promise.resolve(customMessage)
+
+      const [photoUrl, finalMessage] = await Promise.all([uploadPromise, messagePromise])
 
       const data = {
         recipientName, senderName, relationship,
@@ -309,6 +322,10 @@ export default function BirthdayForm({ onStart }) {
           </div>
 
           {error && <div className="form-error">⚠️ {error}</div>}
+
+          {warmingUp && (
+            <small className="warmup-hint">⏳ Waking up the server — first submit may take a little longer</small>
+          )}
 
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading
