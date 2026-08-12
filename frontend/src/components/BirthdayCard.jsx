@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti'
 import Swal from 'sweetalert2'
 import TypeIt from 'typeit'
 import { getOccasionConfig } from '../utils/occasions'
+import AmbientParticles from './AmbientParticles'
 import './BirthdayCard.css'
 
 // Asset imports
@@ -168,7 +169,9 @@ export default function BirthdayCard({ cardData, onBack }) {
     <div className="card-root">
       <div className="card-bg-wrap">
         <img src={bgImage} alt="" className={`card-wallpaper${wallZoom ? ' zoomed' : ''}`} />
+        <div className="card-bg-blobs" />
         <div className="card-overlay" style={{ background: occ.bgGradient }} />
+        <AmbientParticles color={occ.particleColor} />
       </div>
 
       {hearts.map(h => (

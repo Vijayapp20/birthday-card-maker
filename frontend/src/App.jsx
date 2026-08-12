@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react' // v2
+import { ParticlesProvider } from '@tsparticles/react'
+import { loadSlim } from '@tsparticles/slim'
 import api from './api'
 import BirthdayForm from './components/BirthdayForm'
 import BirthdayCard from './components/BirthdayCard'
 import LetterCard from './components/LetterCard'
+
+// Registers the lightweight ("slim") tsparticles engine once for the whole
+// app, so individual <Particles> instances (see AmbientParticles.jsx) don't
+// each pay the init cost.
+const initParticles = async (engine) => { await loadSlim(engine) }
 
 export default function App() {
   const [cardData, setCardData] = useState(null)
@@ -38,39 +45,47 @@ export default function App() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', color: '#fff', fontFamily: 'sans-serif', fontSize: '1.2rem'
-      }}>
-        Loading your celebration card... 🎉
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', color: '#fff', fontFamily: 'sans-serif', fontSize: '1.2rem',
-        textAlign: 'center', padding: '0 20px'
-      }}>
-        ⚠️ {error}
-      </div>
-    )
-  }
-
-  if (cardData) {
-    const onBack = isSharedView ? undefined : () => {
-      // Clear any ?card=ID from the URL and go back to the form
-      window.history.replaceState({}, '', window.location.pathname)
-      setCardData(null)
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          height: '100vh', color: '#fff', fontFamily: 'sans-serif', fontSize: '1.2rem'
+        }}>
+          Loading your celebration card... 🎉
+        </div>
+      )
     }
-    return cardData.template === 'letter'
-      ? <LetterCard cardData={cardData} onBack={onBack} />
-      : <BirthdayCard cardData={cardData} onBack={onBack} />
+
+    if (error) {
+      return (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          height: '100vh', color: '#fff', fontFamily: 'sans-serif', fontSize: '1.2rem',
+          textAlign: 'center', padding: '0 20px'
+        }}>
+          ⚠️ {error}
+        </div>
+      )
+    }
+
+    if (cardData) {
+      const onBack = isSharedView ? undefined : () => {
+        // Clear any ?card=ID from the URL and go back to the form
+        window.history.replaceState({}, '', window.location.pathname)
+        setCardData(null)
+      }
+      return cardData.template === 'letter'
+        ? <LetterCard cardData={cardData} onBack={onBack} />
+        : <BirthdayCard cardData={cardData} onBack={onBack} />
+    }
+
+    return <BirthdayForm onStart={setCardData} />
   }
 
-  return <BirthdayForm onStart={setCardData} />
+  return (
+    <ParticlesProvider init={initParticles}>
+      {renderContent()}
+    </ParticlesProvider>
+  )
 }
