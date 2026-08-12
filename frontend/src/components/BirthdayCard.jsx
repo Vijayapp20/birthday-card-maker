@@ -168,7 +168,7 @@ export default function BirthdayCard({ cardData, onBack }) {
     <div className="card-root">
       <div className="card-bg-wrap">
         <img src={bgImage} alt="" className={`card-wallpaper${wallZoom ? ' zoomed' : ''}`} />
-        <div className="card-overlay" />
+        <div className="card-overlay" style={{ background: occ.bgGradient }} />
       </div>
 
       {hearts.map(h => (
