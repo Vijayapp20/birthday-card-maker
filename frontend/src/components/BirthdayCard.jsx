@@ -4,6 +4,7 @@ import Swal from 'sweetalert2'
 import TypeIt from 'typeit'
 import { getOccasionConfig } from '../utils/occasions'
 import AmbientParticles from './AmbientParticles'
+import VantaBackground from './VantaBackground'
 import './BirthdayCard.css'
 
 // Asset imports
@@ -16,7 +17,6 @@ import mikir      from '../assets/mikir.gif'
 import g5         from '../assets/g5.gif'
 import mndkat     from '../assets/mndkat.gif'
 import pandapanah from '../assets/pandapanah.gif'
-import wp2        from '../assets/wp2.jpeg'
 
 // Map character key to imported gif asset
 const GIF_MAP = { pusn, mikir, cilukba, g5, mndkat, pandaputih, pandapanah }
@@ -60,15 +60,10 @@ export default function BirthdayCard({ cardData, onBack }) {
 
   const [copied,      setCopied]      = useState(false)
 
-
   const kalimatRef    = useRef(null)
   const heartTimerRef = useRef(null)
   const heartIdRef    = useRef(0)
   const busyRef       = useRef(false)
-
-  const bgImage = wp2
-
-
 
   const shareUrl = shareId
     ? `${window.location.origin}${window.location.pathname}?card=${shareId}`
@@ -168,9 +163,8 @@ export default function BirthdayCard({ cardData, onBack }) {
   return (
     <div className="card-root">
       <div className="card-bg-wrap">
-        <img src={bgImage} alt="" className={`card-wallpaper${wallZoom ? ' zoomed' : ''}`} />
-        <div className="card-bg-blobs" />
-        <div className="card-overlay" style={{ background: occ.bgGradient }} />
+        <VantaBackground {...occ.vantaColors} intense={wallZoom} />
+        <div className="card-overlay" />
         <AmbientParticles color={occ.particleColor} />
       </div>
 
