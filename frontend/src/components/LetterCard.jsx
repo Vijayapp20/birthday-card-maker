@@ -35,7 +35,7 @@ export default function LetterCard({ cardData, onBack }) {
   const [sparkles, setSparkles] = useState([])
   const [copied, setCopied] = useState(false)
 
-  const letterBodyRef = useRef(null)
+  const [bodyEl, setBodyEl] = useState(null) // callback ref target — see the effect below
   const sparkleTimerRef = useRef(null)
   const sparkleIdRef = useRef(0)
   const typeItRef = useRef(null)
@@ -63,7 +63,13 @@ export default function LetterCard({ cardData, onBack }) {
   }, [stage])
 
   useEffect(() => {
-    if (stage !== 'writing' || !letterBodyRef.current) return
+    // Depends on bodyEl (a real DOM node via callback ref), not a timing
+    // assumption — this guarantees TypeIt only starts once the <p> has
+    // actually mounted, regardless of how AnimatePresence's exit/enter
+    // timing plays out on a given device. Fixes a bug where TypeIt could
+    // silently never start on slower devices because the effect fired
+    // before the paper had finished mounting.
+    if (stage !== 'writing' || !bodyEl) return
 
     const safeMessage = (message || '').replace(/\n/g, '<br />')
     const html =
@@ -72,7 +78,7 @@ export default function LetterCard({ cardData, onBack }) {
       `<br /><br /><span class="lc-closing">With Love,</span><br />` +
       `<span class="lc-sign">${senderName}</span>`
 
-    typeItRef.current = new TypeIt(letterBodyRef.current, {
+    typeItRef.current = new TypeIt(bodyEl, {
       strings: [html],
       startDelay: 300,
       speed: 28,
@@ -96,7 +102,7 @@ export default function LetterCard({ cardData, onBack }) {
       typeItRef.current?.destroy?.()
       clearInterval(sparkleTimerRef.current)
     }
-  }, [stage, message, recipientName, senderName])
+  }, [stage, bodyEl, message, recipientName, senderName])
 
   useEffect(() => () => clearInterval(sparkleTimerRef.current), [])
 
@@ -162,7 +168,7 @@ export default function LetterCard({ cardData, onBack }) {
               <div className="lc-paper-inner">
                 <p className="lc-title">{occ.cardTitle}</p>
                 {relationship && <p className="lc-subtitle">for my dear {relationship.toLowerCase()}</p>}
-                <p className={`lc-body${stage === 'writing' ? ' writing' : ''}`} ref={letterBodyRef} />
+                <p className={`lc-body${stage === 'writing' ? ' writing' : ''}`} ref={setBodyEl} />
               </div>
               <div className="lc-paper-curl" />
             </motion.div>
