@@ -1,13 +1,22 @@
 .lc-root {
   position: relative;
-  width: 100vw; min-height: 100vh;
+  width: 100%;
+  min-height: 100vh;   /* fallback for older browsers */
+  min-height: 100dvh;  /* real visible height on mobile — accounts for the address bar */
   display: flex; align-items: center; justify-content: center;
   padding: 20px 16px 60px; box-sizing: border-box;
-  overflow: hidden;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(60px, env(safe-area-inset-bottom) + 20px);
+  overflow-x: hidden;
+  overflow-y: auto; /* was `hidden` — on mobile this silently clipped content taller than the visible viewport with no way to scroll to it */
 }
 .lc-bg {
-  position: fixed; inset: 0; z-index: -1;
+  position: fixed; inset: 0; z-index: -2;
   background: linear-gradient(160deg, #fff6ea 0%, #ffe9e0 45%, #ffe0ea 100%);
+}
+.lc-vanta-bg {
+  position: fixed; inset: 0; z-index: -1;
+  opacity: 0.55; /* keeps the warm parchment gradient readable underneath */
 }
 
 .lc-stage {
@@ -143,7 +152,8 @@
 .lc-paper {
   position: relative;
   width: min(92vw, 460px);
-  max-height: 78vh;
+  max-height: 70vh;
+  max-height: 70dvh;
   overflow-y: auto;
   overflow-x: hidden;
   background: #fffdf8;
@@ -261,7 +271,7 @@
 
 /* ---------- Buttons / footer (matches Template 1 conventions) ---------- */
 .lc-back, .lc-share {
-  position: fixed; top: 16px; z-index: 9999;
+  position: fixed; z-index: 9999;
   border: none; border-radius: 999px;
   height: 44px; padding: 0 16px; font-size: 14px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
@@ -273,8 +283,8 @@
   animation: lcBtnIn 0.5s ease forwards;
 }
 .lc-back:hover, .lc-share:hover { background: rgba(255,255,255,0.8); }
-.lc-back { left: 16px; animation-delay: 0.3s; }
-.lc-share { right: 16px; top: 70px; animation-delay: 0.45s; }
+.lc-back  { left: 16px;  top: max(16px, env(safe-area-inset-top));      animation-delay: 0.3s; }
+.lc-share { right: 16px; top: max(70px, env(safe-area-inset-top) + 54px); animation-delay: 0.45s; }
 @keyframes lcBtnIn {
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -283,7 +293,8 @@
 .lc-footer {
   position: fixed; bottom: 0; left: 0; right: 0;
   text-align: center; font-size: 13px; z-index: 10000; pointer-events: none;
-  color: rgba(90, 60, 30, 0.85); padding: 8px 16px 12px;
+  color: rgba(90, 60, 30, 0.85);
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom));
   background: linear-gradient(to top, rgba(255,240,220,0.85) 0%, rgba(255,240,220,0.5) 70%, transparent 100%);
 }
 .lc-footer span { color: #c9436f; font-weight: 700; }

@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
 import Swal from 'sweetalert2'
 import { getOccasionConfig } from '../utils/occasions'
+import VantaCloudsBackground from './VantaCloudsBackground'
 import './LetterCard.css'
 
 function fireSoftConfetti() {
@@ -102,6 +103,7 @@ export default function LetterCard({ cardData, onBack }) {
   return (
     <div className="lc-root">
       <div className="lc-bg" />
+      <VantaCloudsBackground skyColor={0xfff0e0} cloudColor={0xffd9c2} speed={0.85} />
 
       {sparkles.map(s => (
         <div key={s.id} className="lc-sparkle" style={{ left: `${s.left}vw`, animationDuration: `${s.duration}s` }}>
