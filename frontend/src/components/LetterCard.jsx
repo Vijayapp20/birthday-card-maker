@@ -35,7 +35,6 @@ function fireSoftConfetti() {
 const PAPER_NOISE_URL =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"
 
-const flapSpring   = { type: 'spring', stiffness: 110, damping: 14 }
 const paperSpring  = { type: 'spring', stiffness: 130, damping: 16 }
 
 // Small gold corner-flourish ornament, reused in all 4 corners of the paper
@@ -62,9 +61,7 @@ export default function LetterCard({ cardData, onBack }) {
   const sparkleTimerRef = useRef(null)
   const sparkleIdRef = useRef(0)
   const typeItRef = useRef(null)
-  const sealRef = useRef(null)
-  const sealLeftRef = useRef(null)
-  const sealRightRef = useRef(null)
+  const glassCoverRef = useRef(null)
 
   const shareUrl = shareId
     ? `${window.location.origin}${window.location.pathname}?card=${shareId}`
@@ -84,21 +81,25 @@ export default function LetterCard({ cardData, onBack }) {
   const handleOpen = useCallback(() => {
     if (stage !== 'envelope') return
 
-    // Wax-seal crack: a quick press-and-shake, then the seal splits in two
-    // and flies apart — a small choreographed moment before the envelope
-    // itself opens, instead of the seal just fading out flatly.
-    const tl = gsap.timeline({
+    // Single-fold hinge-open: the glass cover swings up and back on its
+    // top edge (like a book cover or a laptop lid), fading out over the
+    // back half of the motion, revealing the letter underneath — the
+    // "Apple Mail" style open instead of a flat fade/slide.
+    gsap.to(glassCoverRef.current, {
+      rotateX: -112,
+      y: -14,
+      duration: 0.85,
+      ease: 'power3.inOut',
+      onUpdate: function () {
+        if (this.progress() > 0.55) {
+          gsap.set(glassCoverRef.current, { opacity: 1 - (this.progress() - 0.55) / 0.45 })
+        }
+      },
       onComplete: () => {
         setStage('opening')
-        setTimeout(() => setStage('writing'), 1450)
+        setTimeout(() => setStage('writing'), 500)
       },
     })
-    tl.to(sealRef.current, { scale: 1.12, rotate: -4, duration: 0.12, ease: 'power2.out' })
-      .to(sealRef.current, { scale: 0.95, rotate: 3, duration: 0.1, ease: 'power2.inOut' })
-      .to(sealRef.current, { opacity: 0, duration: 0.06 }, '<')
-      .set([sealLeftRef.current, sealRightRef.current], { opacity: 1 }, '<')
-      .to(sealLeftRef.current,  { x: -16, y: 7, rotate: -38, opacity: 0, duration: 0.45, ease: 'power2.in' }, '<')
-      .to(sealRightRef.current, { x: 16,  y: 7, rotate: 38,  opacity: 0, duration: 0.45, ease: 'power2.in' }, '<')
   }, [stage])
 
   useEffect(() => {
@@ -161,43 +162,29 @@ export default function LetterCard({ cardData, onBack }) {
           {(stage === 'envelope' || stage === 'opening') && (
             <motion.div
               key="envelope"
-              className="lc-envelope"
-              onClick={handleOpen}
+              className="gl-wrap"
               animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-              exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.3 } }}
+              transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
+              exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.25 } }}
             >
               <div className="lc-envelope-glow" />
-              <div className="lc-envelope-shadow" />
-              <div className="lc-envelope-back" />
-              <div className="lc-stamp"><div className="lc-stamp-icon">🎉</div></div>
-              <div className={`lc-envelope-letter-peek${stage === 'opening' ? ' open' : ''}`} />
-
-              {/* Spring-driven flap — real paper doesn't ease linearly, it swings and settles */}
-              <motion.div
-                className="lc-envelope-flap"
+              <div
+                className="gl-cover"
+                ref={glassCoverRef}
+                onClick={handleOpen}
                 style={{ transformOrigin: 'top center' }}
-                animate={{ rotateX: stage === 'opening' ? 175 : 0 }}
-                transition={flapSpring}
-              />
-
-              <div className="lc-envelope-front-left" />
-              <div className="lc-envelope-front-right" />
-
-              {/* Wax seal — an intact circle plus two pre-split halves (see
-                  handleOpen's GSAP timeline) used for the crack moment */}
-              <div className="lc-seal" ref={sealRef}>
-                <span className="lc-seal-shine" />
-                <svg viewBox="0 0 24 24" className="lc-seal-icon">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
+              >
+                <span className="gl-cover-sheen" />
+                <div className="gl-orb">
+                  <svg viewBox="0 0 24 24" className="gl-orb-icon">
+                    <path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h15A2.5 2.5 0 0 1 22 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5v-11z" fill="none" stroke="currentColor" strokeWidth="1.4"/>
+                    <path d="M3.5 6.5l8 6.2a1.4 1.4 0 0 0 1.7 0l8-6.2" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                {stage === 'envelope' && (
+                  <p className="gl-tap-hint">Tap to open your letter, {recipientName} 💫</p>
+                )}
               </div>
-              <div className="lc-seal-half lc-seal-half--left" ref={sealLeftRef} />
-              <div className="lc-seal-half lc-seal-half--right" ref={sealRightRef} />
-
-              {stage === 'envelope' && (
-                <p className="lc-tap-hint">Tap to open your letter, {recipientName} 💫</p>
-              )}
             </motion.div>
           )}
 
