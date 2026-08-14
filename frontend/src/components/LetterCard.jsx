@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import gsap from 'gsap'
 import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
 import Swal from 'sweetalert2'
@@ -16,6 +17,17 @@ function fireSoftConfetti() {
     colors: ['#f3d9b1', '#ff9fb8', '#ffe3ec', '#c9436f'],
     scalar: 0.8,
   })
+  // A second, sparser burst of metallic gold stars for a premium/luxe finish
+  confetti({
+    particleCount: 22,
+    spread: 100,
+    startVelocity: 32,
+    origin: { y: 0.55 },
+    colors: ['#d4af37', '#f5cf6b', '#fff2c2'],
+    shapes: ['star'],
+    scalar: 1,
+    ticks: 220,
+  })
 }
 
 // Subtle SVG fractal-noise texture, applied as a low-opacity multiply
@@ -25,6 +37,17 @@ const PAPER_NOISE_URL =
 
 const flapSpring   = { type: 'spring', stiffness: 110, damping: 14 }
 const paperSpring  = { type: 'spring', stiffness: 130, damping: 16 }
+
+// Small gold corner-flourish ornament, reused in all 4 corners of the paper
+const CORNER_FLOURISH = (
+  <svg viewBox="0 0 40 40" width="26" height="26">
+    <path
+      d="M2 2 C 2 14, 8 20, 20 20 M2 2 C 14 2, 20 8, 20 20 M2 8 C 2 8, 6 8, 6 4 M8 2 C 8 2, 8 6, 4 6"
+      fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"
+    />
+    <circle cx="20" cy="20" r="1.6" fill="currentColor" />
+  </svg>
+)
 
 export default function LetterCard({ cardData, onBack }) {
   const { recipientName, senderName, message, relationship, occasionType, shareId } = cardData
@@ -39,6 +62,9 @@ export default function LetterCard({ cardData, onBack }) {
   const sparkleTimerRef = useRef(null)
   const sparkleIdRef = useRef(0)
   const typeItRef = useRef(null)
+  const sealRef = useRef(null)
+  const sealLeftRef = useRef(null)
+  const sealRightRef = useRef(null)
 
   const shareUrl = shareId
     ? `${window.location.origin}${window.location.pathname}?card=${shareId}`
@@ -57,9 +83,22 @@ export default function LetterCard({ cardData, onBack }) {
 
   const handleOpen = useCallback(() => {
     if (stage !== 'envelope') return
-    setStage('opening')
-    // Flap opens (~700ms) then letter slides + unfolds (~900ms) then writing begins
-    setTimeout(() => setStage('writing'), 1600)
+
+    // Wax-seal crack: a quick press-and-shake, then the seal splits in two
+    // and flies apart — a small choreographed moment before the envelope
+    // itself opens, instead of the seal just fading out flatly.
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setStage('opening')
+        setTimeout(() => setStage('writing'), 1450)
+      },
+    })
+    tl.to(sealRef.current, { scale: 1.12, rotate: -4, duration: 0.12, ease: 'power2.out' })
+      .to(sealRef.current, { scale: 0.95, rotate: 3, duration: 0.1, ease: 'power2.inOut' })
+      .to(sealRef.current, { opacity: 0, duration: 0.06 }, '<')
+      .set([sealLeftRef.current, sealRightRef.current], { opacity: 1 }, '<')
+      .to(sealLeftRef.current,  { x: -16, y: 7, rotate: -38, opacity: 0, duration: 0.45, ease: 'power2.in' }, '<')
+      .to(sealRightRef.current, { x: 16,  y: 7, rotate: 38,  opacity: 0, duration: 0.45, ease: 'power2.in' }, '<')
   }, [stage])
 
   useEffect(() => {
@@ -128,6 +167,7 @@ export default function LetterCard({ cardData, onBack }) {
               transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
               exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.3 } }}
             >
+              <div className="lc-envelope-glow" />
               <div className="lc-envelope-shadow" />
               <div className="lc-envelope-back" />
               <div className="lc-stamp"><div className="lc-stamp-icon">🎉</div></div>
@@ -143,12 +183,18 @@ export default function LetterCard({ cardData, onBack }) {
 
               <div className="lc-envelope-front-left" />
               <div className="lc-envelope-front-right" />
-              <div className={`lc-seal${stage === 'opening' ? ' open' : ''}`}>
+
+              {/* Wax seal — an intact circle plus two pre-split halves (see
+                  handleOpen's GSAP timeline) used for the crack moment */}
+              <div className="lc-seal" ref={sealRef}>
                 <span className="lc-seal-shine" />
                 <svg viewBox="0 0 24 24" className="lc-seal-icon">
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
               </div>
+              <div className="lc-seal-half lc-seal-half--left" ref={sealLeftRef} />
+              <div className="lc-seal-half lc-seal-half--right" ref={sealRightRef} />
+
               {stage === 'envelope' && (
                 <p className="lc-tap-hint">Tap to open your letter, {recipientName} 💫</p>
               )}
@@ -166,7 +212,11 @@ export default function LetterCard({ cardData, onBack }) {
               <div className="lc-paper-noise" style={{ backgroundImage: `url("${PAPER_NOISE_URL}")` }} />
               <div className="lc-paper-fold-lines" />
               <div className="lc-paper-inner">
-                <p className="lc-title">{occ.cardTitle}</p>
+                <span className="lc-corner lc-corner--tl">{CORNER_FLOURISH}</span>
+                <span className="lc-corner lc-corner--tr">{CORNER_FLOURISH}</span>
+                <span className="lc-corner lc-corner--bl">{CORNER_FLOURISH}</span>
+                <span className="lc-corner lc-corner--br">{CORNER_FLOURISH}</span>
+                <p className="lc-title" data-text={occ.cardTitle}>{occ.cardTitle}</p>
                 {relationship && <p className="lc-subtitle">for my dear {relationship.toLowerCase()}</p>}
                 <p className={`lc-body${stage === 'writing' ? ' writing' : ''}`} ref={setBodyEl} />
               </div>
