@@ -114,12 +114,17 @@
   padding: 6px;
   transition: box-shadow 0.6s ease;
 
-  /* Deckled/torn top edge — a real hand-torn sheet, not a machine-cut rectangle */
+  /* Deckled/torn edges on all four sides — a real hand-torn sheet, not a
+     machine-cut rectangle on just the top */
   clip-path: polygon(
-    0% 4%, 5% 0%, 10% 3%, 15% 0.5%, 20% 3%, 25% 0%, 30% 2.5%, 35% 0.5%,
-    40% 3%, 45% 0%, 50% 2%, 55% 0.5%, 60% 3%, 65% 0%, 70% 2.5%, 75% 0.5%,
-    80% 3%, 85% 0%, 90% 2.5%, 95% 0.5%, 100% 4%,
-    100% 100%, 0% 100%
+    /* top, left -> right */
+    0% 3%, 10% 0%, 20% 2.5%, 30% 0%, 40% 2%, 50% 0.5%, 60% 2.5%, 70% 0%, 80% 2%, 90% 0.5%, 100% 3%,
+    /* right, top -> bottom */
+    97% 15%, 100% 27%, 98% 39%, 100% 51%, 97% 63%, 100% 75%, 98% 87%, 100% 97%,
+    /* bottom, right -> left */
+    90% 100%, 80% 97.5%, 70% 100%, 60% 98%, 50% 100%, 40% 97.5%, 30% 100%, 20% 98%, 10% 100%, 0% 97%,
+    /* left, bottom -> top */
+    3% 85%, 0% 73%, 2% 61%, 0% 49%, 3% 37%, 0% 25%, 2% 13%
   );
 
   /* Fade top/bottom edges of the scrollable area so text never looks
@@ -165,15 +170,27 @@
     linear-gradient(to bottom, transparent calc(66.6% - 1px), rgba(120,80,40,0.10) 66.6%, rgba(255,255,255,0.35) calc(66.6% + 1px), transparent calc(66.6% + 3px));
 }
 
-/* Lifted bottom-right corner, like a page that's been handled/read before */
+/* Lifted bottom-right corner, like a page that's been handled/read before —
+   a soft cast shadow plus a curled flap with a visible fold-crease band */
 .lc-paper-curl {
-  position: absolute; right: 0; bottom: 0;
-  width: 26px; height: 26px;
-  background: linear-gradient(135deg, #fffdf8 45%, #e9dcc3 50%, #fffdf8 60%);
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  box-shadow: -3px -3px 7px rgba(120,80,40,0.22);
+  position: absolute; right: -1px; bottom: -1px;
+  width: 34px; height: 34px;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
+}
+.lc-paper-curl::before {
+  content: '';
+  position: absolute; inset: -6px;
+  background: radial-gradient(circle at 100% 100%, rgba(90, 60, 30, 0.4) 0%, transparent 62%);
+  filter: blur(4px);
+}
+.lc-paper-curl::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #fffdf8 40%, #f3e8cf 47%, #d9c297 51%, #fffdf8 62%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  box-shadow: -2px -2px 6px rgba(120, 80, 40, 0.3), inset -1px -1px 3px rgba(120, 80, 40, 0.2);
+  border-radius: 0 0 16px 0;
 }
 
 .lc-paper-inner {
