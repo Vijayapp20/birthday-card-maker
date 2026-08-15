@@ -220,19 +220,9 @@
 }
 
 .lc-body {
-  font-family: 'Caveat', cursive;
-  font-size: 24px; line-height: 1.6; letter-spacing: 0.2px; color: #4a3423;
+  width: 100%;
   min-height: 120px;
 }
-.lc-body .lc-greeting,
-.lc-body .lc-closing {
-  font-size: 24px; color: #8a5a2f; font-weight: 700;
-}
-.lc-body .lc-sign {
-  font-family: 'Dancing Script', cursive;
-  font-size: 30px; color: #c9436f; font-weight: 700;
-}
-.ti-cursor { color: #8a5a2f; }
 
 /* ---------- Floating sparkles/hearts ---------- */
 .lc-sparkle {
@@ -279,12 +269,9 @@
 @media (max-width: 380px) {
   .lc-paper-inner { padding: 20px 16px 26px; }
   .lc-title { font-size: 21px; }
-  .lc-body, .lc-body .lc-greeting, .lc-body .lc-closing { font-size: 21px; }
-  .lc-body .lc-sign { font-size: 26px; }
 }
 
 @media (min-width: 768px) {
   .lc-paper-inner { padding: 36px 34px 42px; }
   .lc-title { font-size: 28px; }
-  .lc-body, .lc-body .lc-greeting, .lc-body .lc-closing { font-size: 26px; }
 }

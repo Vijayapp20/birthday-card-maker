@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
 import confetti from 'canvas-confetti'
-import TypeIt from 'typeit'
 import Swal from 'sweetalert2'
 import { getOccasionConfig } from '../utils/occasions'
 import VantaCloudsBackground from './VantaCloudsBackground'
+import HandwritingText from './HandwritingText'
 import './LetterCard.css'
 
 function fireSoftConfetti() {
@@ -57,11 +57,26 @@ export default function LetterCard({ cardData, onBack }) {
   const [sparkles, setSparkles] = useState([])
   const [copied, setCopied] = useState(false)
 
-  const [bodyEl, setBodyEl] = useState(null) // callback ref target — see the effect below
+  const [bodyWidth, setBodyWidth] = useState(0)
   const sparkleTimerRef = useRef(null)
   const sparkleIdRef = useRef(0)
-  const typeItRef = useRef(null)
   const glassCoverRef = useRef(null)
+
+  const bodyWrapRef = useCallback(node => {
+    if (node) setBodyWidth(node.clientWidth)
+  }, [])
+
+  const blocks = useMemo(() => {
+    const out = [
+      { text: `Dear ${recipientName},`, size: 'greeting' },
+      { break: true },
+    ]
+    ;(message || '').split('\n').forEach(paragraph => out.push({ text: paragraph, size: 'body' }))
+    out.push({ break: true })
+    out.push({ text: 'With Love,', size: 'closing' })
+    out.push({ text: senderName, size: 'sign' })
+    return out
+  }, [recipientName, message, senderName])
 
   const shareUrl = shareId
     ? `${window.location.origin}${window.location.pathname}?card=${shareId}`
@@ -102,47 +117,18 @@ export default function LetterCard({ cardData, onBack }) {
     })
   }, [stage])
 
-  useEffect(() => {
-    // Depends on bodyEl (a real DOM node via callback ref), not a timing
-    // assumption — this guarantees TypeIt only starts once the <p> has
-    // actually mounted, regardless of how AnimatePresence's exit/enter
-    // timing plays out on a given device. Fixes a bug where TypeIt could
-    // silently never start on slower devices because the effect fired
-    // before the paper had finished mounting.
-    if (stage !== 'writing' || !bodyEl) return
-
-    const safeMessage = (message || '').replace(/\n/g, '<br />')
-    const html =
-      `<span class="lc-greeting">Dear ${recipientName},</span><br /><br />` +
-      safeMessage +
-      `<br /><br /><span class="lc-closing">With Love,</span><br />` +
-      `<span class="lc-sign">${senderName}</span>`
-
-    typeItRef.current = new TypeIt(bodyEl, {
-      strings: [html],
-      startDelay: 300,
-      speed: 28,
-      cursor: true,
-      html: true,
-      afterComplete: () => {
-        setStage('done')
-        fireSoftConfetti()
-        sparkleTimerRef.current = setInterval(() => {
-          const id = sparkleIdRef.current++
-          const left = Math.random() * 100
-          const duration = Math.random() * 2.5 + 3
-          const kind = Math.random() > 0.5 ? '💖' : '✨'
-          setSparkles(prev => [...prev, { id, left, duration, kind }])
-          setTimeout(() => setSparkles(prev => prev.filter(s => s.id !== id)), (duration + 0.5) * 1000)
-        }, 400)
-      },
-    }).go()
-
-    return () => {
-      typeItRef.current?.destroy?.()
-      clearInterval(sparkleTimerRef.current)
-    }
-  }, [stage, bodyEl, message, recipientName, senderName])
+  const handleWritingComplete = useCallback(() => {
+    setStage('done')
+    fireSoftConfetti()
+    sparkleTimerRef.current = setInterval(() => {
+      const id = sparkleIdRef.current++
+      const left = Math.random() * 100
+      const duration = Math.random() * 2.5 + 3
+      const kind = Math.random() > 0.5 ? '💖' : '✨'
+      setSparkles(prev => [...prev, { id, left, duration, kind }])
+      setTimeout(() => setSparkles(prev => prev.filter(s => s.id !== id)), (duration + 0.5) * 1000)
+    }, 400)
+  }, [])
 
   useEffect(() => () => clearInterval(sparkleTimerRef.current), [])
 
@@ -205,7 +191,16 @@ export default function LetterCard({ cardData, onBack }) {
                 <span className="lc-corner lc-corner--br">{CORNER_FLOURISH}</span>
                 <p className="lc-title" data-text={occ.cardTitle}>{occ.cardTitle}</p>
                 {relationship && <p className="lc-subtitle">for my dear {relationship.toLowerCase()}</p>}
-                <p className={`lc-body${stage === 'writing' ? ' writing' : ''}`} ref={setBodyEl} />
+                <div className="lc-body" ref={bodyWrapRef}>
+                  {bodyWidth > 0 && (
+                    <HandwritingText
+                      blocks={blocks}
+                      width={bodyWidth}
+                      active={stage === 'writing'}
+                      onComplete={handleWritingComplete}
+                    />
+                  )}
+                </div>
               </div>
               <div className="lc-paper-curl" />
             </motion.div>
