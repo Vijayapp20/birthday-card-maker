@@ -22,20 +22,20 @@ const RELATIONSHIP_CHARACTER_MAP = {
   Father: 'cilukba', Mother: 'cilukba',
   Wife: 'g5', Husband: 'g5', Lover: 'g5',
   Children: 'pandaputih',
-  Friend: 'mndkat',
+  Friend: 'cilukba',
   Brother: 'pusn', Sister: 'pusn',
-  Other: 'g5',
+  Other: 'cilukba',
 }
 
 const getCharacterForRelationship = (rel) => {
   if (RELATIONSHIP_CHARACTER_MAP[rel]) return RELATIONSHIP_CHARACTER_MAP[rel]
   const lower = (rel || '').toLowerCase()
-  if (/husband|wife|lover|boyfriend|girlfriend|spouse|fiance/.test(lower)) return 'mndkat'
+  if (/husband|wife|lover|boyfriend|girlfriend|spouse|fiance/.test(lower)) return 'g5'
   if (/brother|sister|sibling/.test(lower)) return 'pusn'
   if (/mother|father|parent|mom|dad/.test(lower)) return 'cilukba'
   if (/child|son|daughter|kid/.test(lower)) return 'pandaputih'
-  if (/friend/.test(lower)) return 'g5'
-  return 'g5'
+  if (/friend/.test(lower)) return 'cilukba'
+  return 'cilukba'
 }
 
 export default function BirthdayForm({ onStart }) {
