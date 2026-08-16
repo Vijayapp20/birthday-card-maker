@@ -20,9 +20,9 @@ const RELATIONSHIPS = ['Father', 'Mother', 'Wife', 'Husband', 'Children', 'Lover
 // Auto-pick a character based on relationship — no manual selection needed in the UI.
 const RELATIONSHIP_CHARACTER_MAP = {
   Father: 'cilukba', Mother: 'cilukba',
-  Wife: 'mndkat', Husband: 'mndkat', Lover: 'mndkat',
+  Wife: 'g5', Husband: 'g5', Lover: 'g5',
   Children: 'pandaputih',
-  Friend: 'g5',
+  Friend: 'mndkat',
   Brother: 'pusn', Sister: 'pusn',
   Other: 'g5',
 }
