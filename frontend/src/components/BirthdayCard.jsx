@@ -5,6 +5,7 @@ import TypeIt from 'typeit'
 import { getOccasionConfig } from '../utils/occasions'
 import AmbientParticles from './AmbientParticles'
 import VantaBackground from './VantaBackground'
+import HeartParticles from './HeartParticles'
 import './BirthdayCard.css'
 
 // Asset imports
@@ -193,7 +194,12 @@ export default function BirthdayCard({ cardData, onBack }) {
 
         {stage === 'slider' && (
           <div className={`slider-wrap${sliderReady ? ' ready' : ''}`}>
-            <div className="slide">
+            <div className={`slide${SLIDES[slideIndex].fancy ? ' slide-fancy' : ''}`}>
+              {SLIDES[slideIndex].fancy && (
+                <div className="heart-particles-wrap">
+                  <HeartParticles color={occ.particleColor || '#ffeb3b'} />
+                </div>
+              )}
               <img src={SLIDES[slideIndex].img} alt="" className="slide-img" />
               {SLIDES[slideIndex].fancy
                 ? <span className="slide-text ft">{SLIDES[slideIndex].text}</span>

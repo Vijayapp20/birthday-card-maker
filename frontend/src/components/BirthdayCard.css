@@ -98,6 +98,23 @@
 .slide-text.ft {
   font-family: var(--secondary-font); font-size: 28px; color: #ffeb3b;
 }
+
+/* Fancy (4th) slide — glowing particle-heart backdrop */
+.slide-fancy { position: relative; padding: 30px 10px 10px; }
+.slide-fancy .slide-img,
+.slide-fancy .slide-text { position: relative; z-index: 1; }
+.slide-fancy .slide-img { box-shadow: 0 0 25px rgba(255,235,59,0.5); }
+.heart-particles-wrap {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px; height: 280px; max-width: 90vw;
+  border-radius: 50%; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0) 75%);
+}
+.heart-particles-canvas { position: absolute; inset: 0; display: block; }
+@media (min-width: 768px) {
+  .heart-particles-wrap { width: 340px; height: 340px; }
+}
 .tombol {
   margin-top: 20px; opacity: 0; transform: translateY(10px);
   transition: opacity 0.5s ease, transform 0.5s ease;
