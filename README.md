@@ -1,6 +1,9 @@
-# 🎉 Birthday Card Maker — Full Stack
+# 🎉 Celebration Wishes — Full Stack
+*(formerly Birthday Card Maker)*
 
 **React + Vite** frontend · **Spring Boot + Spring AI + Groq** backend
+
+🔗 **Live app:** [celebration-wishes.vercel.app](https://celebration-wishes.vercel.app/)
 
 ---
 
@@ -65,8 +68,8 @@ Frontend runs at → `http://localhost:5173`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/generate-message` | AI birthday message via Groq |
-| POST | `/api/upload` | Upload photo (multipart) |
+| POST | `/api/generate-message` | AI-generated wish message via Groq |
+| POST | `/api/upload` | Upload photo (multipart, stored via Cloudinary) |
 | GET  | `/api/health` | Health check |
 
 ### POST /api/generate-message
@@ -100,11 +103,13 @@ file: <image file>
 
 ## ✨ Features
 
+- 🎉 **Multi-occasion support** — birthday, anniversary, graduation, new job, new home, baby shower, engagement
 - 🎂 **Dynamic Form** — recipient name, sender name, relationship picker
-- 🤖 **AI Message** — Groq (Llama3) generates personalised birthday message
-- ✏️ **Custom Message** — write your own message
-- 📸 **Photo Upload** — user's photo replaces background
-- 💖 **Animated Card** — confetti, slider, SweetAlert2 popup, TypeIt typing, falling hearts
+- 🤖 **AI Message** — Groq (Llama 3.1) generates a personalised wish
+- ✏️ **Custom Message** — write your own message instead
+- 📸 **Photo Upload** — face-aware cropping, photo becomes part of the card
+- 💖 **Animated Card** — confetti, pop-up open animation, handwriting-style text reveal, falling sparkles
+- 🔗 **Shareable Link** — every card gets a unique, shareable UUID link
 - 📱 **Responsive** — works on mobile & desktop
 
 ---
@@ -113,8 +118,10 @@ file: <image file>
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React 18, Vite, Axios |
-| Animations | canvas-confetti, TypeIt, SweetAlert2 |
+| Frontend | React 18, Vite, Axios, Framer Motion, GSAP |
+| Animations | canvas-confetti, SweetAlert2 |
 | Backend | Spring Boot 3.3, Java 21 |
-| AI | Spring AI 1.0 + Groq (Llama3-8b) |
-| File Upload | Spring Multipart → local `/uploads` folder |
+| AI | Spring AI 1.0 + Groq (Llama 3.1) |
+| Database | MySQL (hosted on Aiven) |
+| File Storage | Cloudinary |
+| Deployment | Vercel (frontend) · Render (backend) |
