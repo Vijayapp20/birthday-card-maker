@@ -14,7 +14,7 @@ function fireSoftConfetti() {
     spread: 70,
     startVelocity: 28,
     origin: { y: 0.6 },
-    colors: ['#f3d9b1', '#ff9fb8', '#ffe3ec', '#c9436f'],
+    colors: ['#e7cf94', '#7a2140', '#f1ddc9', '#c8a24a'],
     scalar: 0.8,
   })
   // A second, sparser burst of metallic gold stars for a premium/luxe finish
@@ -23,7 +23,7 @@ function fireSoftConfetti() {
     spread: 100,
     startVelocity: 32,
     origin: { y: 0.55 },
-    colors: ['#d4af37', '#f5cf6b', '#fff2c2'],
+    colors: ['#c8a24a', '#e7cf94', '#fff2c2'],
     shapes: ['star'],
     scalar: 1,
     ticks: 220,
@@ -161,7 +161,7 @@ export default function LetterCard({ cardData, onBack }) {
   return (
     <div className="lc-root">
       <div className="lc-bg" />
-      <VantaCloudsBackground skyColor={0xfff0e0} cloudColor={0xffd9c2} speed={0.85} />
+      <VantaCloudsBackground skyColor={0x5a1a2d} cloudColor={0xc8a24a} speed={0.85} />
 
       {sparkles.map(s => (
         <div key={s.id} className="lc-sparkle" style={{ left: `${s.left}vw`, animationDuration: `${s.duration}s` }}>
