@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../api'
+import TemplateSelect from './TemplateSelect'
 import ManualCropModal from './ManualCropModal'
 import './BirthdayForm.css'
 
@@ -54,6 +55,8 @@ export default function BirthdayForm({ onStart }) {
   const [faceDetected, setFaceDetected]             = useState(null)
   const [loading, setLoading]                       = useState(false)
   const [error, setError]                           = useState('')
+  const [preparedData, setPreparedData]             = useState(null) // set once submit succeeds; triggers template picker
+  const [savingTemplate, setSavingTemplate]         = useState(false)
   const [warmingUp, setWarmingUp]                   = useState(true)
   const fileRef = useRef(null)
 
@@ -107,15 +110,17 @@ export default function BirthdayForm({ onStart }) {
   const getFinalOccasion = () =>
     occasionType === 'custom' ? (customOccasion.trim() || 'custom') : occasionType
 
-  // Saves the card (photo template — the only one available) and hands off to the parent.
-  const finalizeCard = async (data) => {
-    const template = 'photo'
+  // Saves the card with the given template and hands off to the parent.
+  const finalizeCard = async (data, template) => {
+    setSavingTemplate(true)
     let shareId = null
     try {
       const saveRes = await api.post('/api/cards', { ...data, template })
       shareId = saveRes.data.id
     } catch (saveErr) {
       console.error('Failed to save shareable card:', saveErr)
+    } finally {
+      setSavingTemplate(false)
     }
     onStart({ ...data, shareId, template })
   }
@@ -157,12 +162,25 @@ export default function BirthdayForm({ onStart }) {
         occasionType: getFinalOccasion(),
       }
 
-      await finalizeCard(data)
+      setPreparedData(data)
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleChooseTemplate = (template) => finalizeCard(preparedData, template)
+
+  if (preparedData) {
+    return (
+      <TemplateSelect
+        recipientName={preparedData.recipientName}
+        onChoose={handleChooseTemplate}
+        onBack={() => setPreparedData(null)}
+        saving={savingTemplate}
+      />
+    )
   }
 
   return (

@@ -6,8 +6,10 @@ import BirthdayForm from './components/BirthdayForm'
 
 // BirthdayCard pulls in three.js + vanta (~500KB) — not needed until the
 // form is actually submitted, so load it on demand instead of blocking
-// the initial form render.
+// the initial form render. GiftBoxCard is pure CSS (no heavy deps) but is
+// still lazy-loaded to keep it out of the initial bundle.
 const BirthdayCard = lazy(() => import('./components/BirthdayCard'))
+const GiftBoxCard  = lazy(() => import('./components/GiftBoxCard'))
 
 // Registers the lightweight ("slim") tsparticles engine once for the whole
 // app, so individual <Particles> instances (see AmbientParticles.jsx) don't
@@ -89,7 +91,9 @@ export default function App() {
       }
       return (
         <Suspense fallback={CardLoadingFallback}>
-          <BirthdayCard cardData={cardData} onBack={onBack} />
+          {cardData.template === 'giftbox'
+            ? <GiftBoxCard cardData={cardData} onBack={onBack} />
+            : <BirthdayCard cardData={cardData} onBack={onBack} />}
         </Suspense>
       )
     }

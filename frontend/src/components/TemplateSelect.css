@@ -1,0 +1,78 @@
+.tpl-page {
+  position: relative;
+  width: 100vw; min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 30px 16px 50px; box-sizing: border-box;
+}
+.tpl-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(135deg, #ffe3ec 0%, #ffd6e0 35%, #ffe8d6 100%);
+}
+
+.tpl-wrap {
+  width: min(92%, 720px);
+  animation: tplIn 0.5s ease both;
+}
+@keyframes tplIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tpl-header { text-align: center; margin-bottom: 28px; }
+.tpl-emoji { font-size: 40px; display: block; margin-bottom: 6px; }
+.tpl-header h1 {
+  font-family: var(--secondary-font, 'Pacifico', cursive);
+  font-size: 30px; color: #c9436f; margin-bottom: 6px;
+}
+.tpl-header p { color: #7a5560; font-size: 14px; font-weight: 500; }
+
+.tpl-grid {
+  display: grid; grid-template-columns: 1fr; gap: 18px;
+}
+@media (min-width: 640px) {
+  .tpl-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.tpl-card {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 24px;
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--primary-font, 'Poppins', sans-serif);
+  box-shadow: 0 10px 25px rgba(201,67,111,0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.tpl-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(201,67,111,0.2);
+  border-color: #ff9fb8;
+}
+.tpl-card:active { transform: translateY(-2px) scale(0.99); }
+
+.tpl-card:disabled { opacity: 0.55; cursor: default; pointer-events: none; }
+
+.tpl-preview {
+  width: 100%; height: 130px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.tpl-preview--photo   { background: linear-gradient(135deg, #ff9fb8 0%, #ffc3a0 100%); }
+.tpl-preview--giftbox { background: linear-gradient(135deg, #b98cff 0%, #ff9fd6 100%); }
+.tpl-preview-icon { font-size: 48px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
+
+.tpl-card h3 {
+  font-size: 17px; font-weight: 700; color: #4a2e35; margin-bottom: 8px;
+}
+.tpl-card p {
+  font-size: 13px; line-height: 1.5; color: #8a6b73;
+}
+
+.tpl-back {
+  display: block; margin: 28px auto 0;
+  background: none; border: none;
+  color: #a05a72; font-weight: 600; font-size: 14px;
+  cursor: pointer; text-decoration: underline;
+}

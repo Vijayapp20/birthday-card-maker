@@ -1,0 +1,133 @@
+import { useState, useRef, useCallback, useEffect } from 'react'
+import confetti from 'canvas-confetti'
+import TypeIt from 'typeit'
+import { getOccasionConfig } from '../utils/occasions'
+import AmbientParticles from './AmbientParticles'
+import './GiftBoxCard.css'
+
+function fireBurst(originY = 0.55) {
+  const defaults = { startVelocity: 35, spread: 100, ticks: 80, zIndex: 5, origin: { y: originY } }
+  confetti({ ...defaults, particleCount: 60, angle: 60, origin: { x: 0, y: originY } })
+  confetti({ ...defaults, particleCount: 60, angle: 120, origin: { x: 1, y: originY } })
+  confetti({ ...defaults, particleCount: 50, origin: { x: 0.5, y: originY } })
+}
+
+// Interactive gift-box reveal template. Pure CSS box + lid/ribbon animation —
+// no extra animation library needed. Tap opens the box, confetti bursts, then
+// the message and (optional) photo fade in.
+export default function GiftBoxCard({ cardData, onBack }) {
+  const { recipientName, senderName, message, photoUrl, shareId, occasionType } = cardData
+  const occ = getOccasionConfig(occasionType || 'birthday')
+
+  const [stage, setStage]     = useState('closed') // closed -> opening -> open
+  const [isTyping, setIsTyping] = useState(false)
+  const [copied, setCopied]   = useState(false)
+
+  const kalimatRef = useRef(null)
+  const boxRef      = useRef(null)
+
+  const shareUrl = shareId
+    ? `${window.location.origin}${window.location.pathname}?card=${shareId}`
+    : null
+
+  const handleCopyLink = useCallback(async () => {
+    if (!shareUrl) return
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // clipboard blocked — silently ignore, the link is still shown via the button title
+    }
+  }, [shareUrl])
+
+  const handleOpen = useCallback(() => {
+    if (stage !== 'closed') return
+    setStage('opening')
+
+    // Small burst right as the lid pops, bigger burst once it's fully open
+    setTimeout(() => {
+      const rect = boxRef.current?.getBoundingClientRect()
+      const originY = rect ? rect.top / window.innerHeight : 0.55
+      fireBurst(originY)
+    }, 250)
+
+    setTimeout(() => setStage('open'), 900)
+  }, [stage])
+
+  useEffect(() => {
+    if (stage !== 'open' || !kalimatRef.current) return
+    setIsTyping(true)
+    const safeMessage = message.replace(/\n/g, '<br />')
+    const fullHtml = safeMessage + `<br /><br /><span class="gb-from">— From ${senderName} ✨</span>`
+    const instance = new TypeIt(kalimatRef.current, {
+      strings: [fullHtml], startDelay: 150, speed: 28, cursor: true, html: true,
+      afterComplete() { setIsTyping(false) },
+    }).go()
+    return () => instance.destroy()
+  }, [stage, message, senderName])
+
+  return (
+    <div className="gb-root" style={{ '--gb-accent': occ.particleColor }}>
+      <div className="gb-bg-wrap">
+        <div className="gb-overlay" />
+        <AmbientParticles color={occ.particleColor} />
+      </div>
+
+      <div className="gb-stage">
+        {stage !== 'open' && (
+          <>
+            <p className="gb-hint">
+              {stage === 'closed' ? `A surprise for you, ${recipientName}! 🎁` : 'Opening…'}
+            </p>
+            <div
+              ref={boxRef}
+              className={`gb-box${stage === 'opening' ? ' gb-box--opening' : ''}`}
+              onClick={handleOpen}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleOpen()}
+            >
+              <div className="gb-lid">
+                <div className="gb-bow" />
+              </div>
+              <div className="gb-body">
+                <div className="gb-ribbon-v" />
+              </div>
+              <div className="gb-ribbon-h gb-ribbon-h--left" />
+              <div className="gb-ribbon-h gb-ribbon-h--right" />
+              <div className="gb-glow" />
+            </div>
+            {stage === 'closed' && <p className="gb-tap-label">Tap the box to open</p>}
+          </>
+        )}
+
+        {stage === 'open' && (
+          <div className="gb-reveal">
+            {photoUrl && (
+              <div className="gb-photo">
+                <img src={photoUrl} alt={recipientName} />
+              </div>
+            )}
+            <p className="gb-title">{occ.cardTitle}</p>
+            <p className={`gb-message${isTyping ? ' gb-message--typing' : ''}`} ref={kalimatRef} />
+          </div>
+        )}
+      </div>
+
+      {onBack && (
+        <button className="gb-back-toggle" onClick={onBack} title="Go back">← Back</button>
+      )}
+
+      {shareUrl && (
+        <button className="gb-share-toggle" onClick={handleCopyLink} title="Copy shareable link">
+          {copied ? '✅ Copied!' : '🔗 Share'}
+        </button>
+      )}
+
+      <div className="gb-footer">
+        <b>made with ❤️ by <span>@vijayprasanth</span></b>
+      </div>
+    </div>
+  )
+}
