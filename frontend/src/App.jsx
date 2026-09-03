@@ -4,11 +4,10 @@ import { loadSlim } from '@tsparticles/slim'
 import api from './api'
 import BirthdayForm from './components/BirthdayForm'
 
-// BirthdayCard pulls in three.js + vanta (~500KB) and LetterCard pulls in
-// framer-motion — neither is needed until the form is actually submitted,
-// so load them on demand instead of blocking the initial form render.
+// BirthdayCard pulls in three.js + vanta (~500KB) — not needed until the
+// form is actually submitted, so load it on demand instead of blocking
+// the initial form render.
 const BirthdayCard = lazy(() => import('./components/BirthdayCard'))
-const LetterCard   = lazy(() => import('./components/LetterCard'))
 
 // Registers the lightweight ("slim") tsparticles engine once for the whole
 // app, so individual <Particles> instances (see AmbientParticles.jsx) don't
@@ -90,9 +89,7 @@ export default function App() {
       }
       return (
         <Suspense fallback={CardLoadingFallback}>
-          {cardData.template === 'letter'
-            ? <LetterCard cardData={cardData} onBack={onBack} />
-            : <BirthdayCard cardData={cardData} onBack={onBack} />}
+          <BirthdayCard cardData={cardData} onBack={onBack} />
         </Suspense>
       )
     }

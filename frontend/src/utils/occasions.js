@@ -1,5 +1,5 @@
-// Shared occasion-based content config — used by BOTH Template 1 (BirthdayCard)
-// and Template 2 (LetterCard) so the copy stays consistent and logic isn't duplicated.
+// Shared occasion-based content config used by BirthdayCard so the copy
+// stays consistent and logic isn't duplicated.
 
 export const OCCASION_CONFIG = {
   birthday:    { cardTitle: 'Happy Level Up Day! 🥳',       slide1: 'Hey {name} 🤭❤️',  slide3: "It's your special day! 🎂",       slide5: 'Wishing you a long life\nand good health always 🥰', particleColor: '#ffb3c6', vantaColors: { highlightColor: 0xff9eb1, midtoneColor: 0xff5c8a, lowlightColor: 0x2a0512, baseColor: 0x120309 } },
