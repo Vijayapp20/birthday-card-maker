@@ -32,6 +32,12 @@ public class MessageService {
                 ? req.occasionType() : "celebration";
 
         String occasionTone = getOccasionTone(occasion);
+        boolean tamil = req.language() != null &&
+                (req.language().equalsIgnoreCase("ta") || req.language().equalsIgnoreCase("tamil"));
+
+        String languageInstruction = tamil
+            ? "Write the poem ENTIRELY in the Tamil language, using Tamil script (not Tanglish, not transliteration)."
+            : "Write the poem in English.";
 
         return String.format(
             "You are a poet who writes short, warm occasion poems.%n%n" +
@@ -39,7 +45,8 @@ public class MessageService {
             "- Recipient: %s%n" +
             "- From: %s%n" +
             "- Occasion: %s%n%n" +
-            "Tone: %s%n%n" +
+            "Tone: %s%n" +
+            "Language: %s%n%n" +
             "STRICT RULES:%n" +
             "- EXACTLY 4 lines, simple AABB or ABAB rhyme scheme%n" +
             "- Match the occasion exactly - do not mention unrelated occasions%n" +
@@ -50,7 +57,8 @@ public class MessageService {
             req.recipientName(),
             req.senderName(),
             occasion,
-            occasionTone
+            occasionTone,
+            languageInstruction
         );
     }
 

@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
 import api from '../api'
 import { getOccasionConfig } from '../utils/occasions'
-import { playOccasionChime } from '../utils/giftSound'
+import { playOccasionChime, startAmbientPad } from '../utils/giftSound'
 import AmbientParticles from './AmbientParticles'
 import './GiftBoxCard.css'
 
@@ -29,6 +29,8 @@ export default function GiftBoxCard({ cardData, onBack }) {
   const [poemLoading, setPoemLoading] = useState(false)
   const [poemError, setPoemError]     = useState('')
   const [isSpeaking, setIsSpeaking]   = useState(false)
+  const [poemLang, setPoemLang]       = useState('en')
+  const stopAmbientRef = useRef(null)
 
   const toggleMuted = useCallback(() => {
     setMuted(prev => {
@@ -58,13 +60,14 @@ export default function GiftBoxCard({ cardData, onBack }) {
 
   // Bonus reveal — a short AI-generated poem, fetched on demand so it
   // never blocks or delays the main card reveal.
-  const handleGeneratePoem = useCallback(async () => {
+  const handleGeneratePoem = useCallback(async (lang) => {
     if (poemLoading || poem) return
+    setPoemLang(lang)
     setPoemLoading(true)
     setPoemError('')
     try {
       const res = await api.post('/api/generate-poem', {
-        recipientName, senderName, relationship, occasionType,
+        recipientName, senderName, relationship, occasionType, language: lang,
       })
       setPoem(res.data.poem)
     } catch {
@@ -74,28 +77,41 @@ export default function GiftBoxCard({ cardData, onBack }) {
     }
   }, [poemLoading, poem, recipientName, senderName, relationship, occasionType])
 
-  // Reads the poem aloud using the browser's built-in speech synthesis —
-  // no audio files, no library, works fully offline once loaded.
+  // Reads the poem aloud using the browser's built-in speech synthesis,
+  // with a soft synthesized background pad playing underneath — no audio
+  // files, no library, works fully offline once loaded.
   const handlePlayPoem = useCallback(() => {
     if (!('speechSynthesis' in window) || !poem) return
     if (isSpeaking) {
       window.speechSynthesis.cancel()
+      stopAmbientRef.current?.()
       setIsSpeaking(false)
       return
     }
     const utterance = new SpeechSynthesisUtterance(poem.replace(/\n/g, '. '))
+    utterance.lang = poemLang === 'ta' ? 'ta-IN' : 'en-US'
     utterance.rate = 0.9
     utterance.pitch = 1.05
-    utterance.onend = () => setIsSpeaking(false)
-    utterance.onerror = () => setIsSpeaking(false)
+    utterance.onend = () => {
+      stopAmbientRef.current?.()
+      setIsSpeaking(false)
+    }
+    utterance.onerror = () => {
+      stopAmbientRef.current?.()
+      setIsSpeaking(false)
+    }
     window.speechSynthesis.cancel() // stop anything already queued
+    stopAmbientRef.current = startAmbientPad(occasionType)
     window.speechSynthesis.speak(utterance)
     setIsSpeaking(true)
-  }, [poem, isSpeaking])
+  }, [poem, poemLang, isSpeaking, occasionType])
 
-  // Stop any speech in progress if the card unmounts (e.g. user hits Back).
+  // Stop any speech/ambient pad in progress if the card unmounts (e.g. user hits Back).
   useEffect(() => {
-    return () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel() }
+    return () => {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+      stopAmbientRef.current?.()
+    }
   }, [])
 
   const handleOpen = useCallback(() => {
@@ -175,9 +191,17 @@ export default function GiftBoxCard({ cardData, onBack }) {
             {!isTyping && (
               <div className="gb-poem-zone">
                 {!poem && !poemLoading && (
-                  <button type="button" className="gb-poem-btn" onClick={handleGeneratePoem}>
-                    ✨ Write me a poem too
-                  </button>
+                  <div className="gb-poem-lang-choice">
+                    <p className="gb-poem-prompt">✨ Want a little poem too?</p>
+                    <div className="gb-poem-lang-btns">
+                      <button type="button" className="gb-poem-btn" onClick={() => handleGeneratePoem('en')}>
+                        English
+                      </button>
+                      <button type="button" className="gb-poem-btn" onClick={() => handleGeneratePoem('ta')}>
+                        தமிழ்
+                      </button>
+                    </div>
+                  </div>
                 )}
                 {poemLoading && <p className="gb-poem-loading">Writing a little poem…</p>}
                 {poemError && <p className="gb-poem-error">{poemError}</p>}
@@ -190,7 +214,9 @@ export default function GiftBoxCard({ cardData, onBack }) {
                     </p>
                     {'speechSynthesis' in window && (
                       <button type="button" className="gb-poem-play-btn" onClick={handlePlayPoem}>
-                        {isSpeaking ? '⏹ Stop' : '🔊 Play poem'}
+                        {isSpeaking
+                          ? (poemLang === 'ta' ? '⏹ நிறுத்து' : '⏹ Stop')
+                          : (poemLang === 'ta' ? '🔊 கேட்க' : '🔊 Play poem')}
                       </button>
                     )}
                   </>

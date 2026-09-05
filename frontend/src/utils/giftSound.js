@@ -44,3 +44,46 @@ export function playOccasionChime(occasionType) {
     t += noteDuration * 0.85 // slight overlap between notes for a smoother run
   })
 }
+
+// Soft looping background pad meant to sit *under* speech (e.g. while the
+// poem is being read aloud). Three gently detuned sine waves through a
+// lowpass filter, kept quiet so it never competes with the voice. Returns
+// a stop() function that fades the pad out cleanly.
+export function startAmbientPad(occasionType) {
+  const ctx = getContext()
+  if (!ctx) return () => {}
+  if (ctx.state === 'suspended') ctx.resume()
+
+  const { notes } = NOTE_PATTERNS[occasionType] || DEFAULT_PATTERN
+  const root = notes[0] / 2 // one octave down — a pad, not the chime itself
+
+  const filter = ctx.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.value = 900
+
+  const masterGain = ctx.createGain()
+  masterGain.gain.setValueAtTime(0, ctx.currentTime)
+  masterGain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 1.2) // slow fade-in, deliberately quiet
+  filter.connect(masterGain).connect(ctx.destination)
+
+  const oscillators = [0, 7, -7].map((detuneCents) => {
+    const osc = ctx.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.value = root
+    osc.detune.value = detuneCents
+    osc.connect(filter)
+    osc.start()
+    return osc
+  })
+
+  let stopped = false
+  return function stop() {
+    if (stopped) return
+    stopped = true
+    const now = ctx.currentTime
+    masterGain.gain.cancelScheduledValues(now)
+    masterGain.gain.setValueAtTime(masterGain.gain.value, now)
+    masterGain.gain.linearRampToValueAtTime(0, now + 0.6)
+    oscillators.forEach((osc) => osc.stop(now + 0.65))
+  }
+}
