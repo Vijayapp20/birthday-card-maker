@@ -3,7 +3,8 @@ import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
 import api from '../api'
 import { getOccasionConfig } from '../utils/occasions'
-import { playOccasionChime, startAmbientPad } from '../utils/giftSound'
+import { playOccasionChime } from '../utils/giftSound'
+import { startMelodyBacking } from '../utils/giftMusic'
 import AmbientParticles from './AmbientParticles'
 import './GiftBoxCard.css'
 
@@ -83,11 +84,10 @@ export default function GiftBoxCard({ cardData, onBack }) {
   const MELODY_PITCH_STEPS = [1.0, 1.22, 1.15, 0.9]
 
   // Reads the poem aloud line-by-line using the browser's built-in speech
-  // synthesis. Each line gets its own pitch from a melodic contour, and the
-  // ambient pad glides to a matching note right as that line starts — so
-  // the music's melody follows the reading like a soft backing hum, on top
-  // of the per-word volume pulse (via onboundary).
-  const handlePlayPoem = useCallback(() => {
+  // synthesis, backed by a real Tone.js instrument (see giftMusic.js) that
+  // plays a soft chord per line and light sparkle notes per word — so the
+  // reading feels like a small sung, accompanied verse rather than flat TTS.
+  const handlePlayPoem = useCallback(async () => {
     if (!('speechSynthesis' in window) || !poem) return
     if (isSpeaking) {
       window.speechSynthesis.cancel()
@@ -100,7 +100,7 @@ export default function GiftBoxCard({ cardData, onBack }) {
     if (lines.length === 0) return
 
     window.speechSynthesis.cancel() // stop anything already queued
-    stopAmbientRef.current = startAmbientPad(occasionType)
+    stopAmbientRef.current = await startMelodyBacking(occasionType)
 
     lines.forEach((line, i) => {
       const utterance = new SpeechSynthesisUtterance(line)
