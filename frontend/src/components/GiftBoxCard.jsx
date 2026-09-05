@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
+import api from '../api'
 import { getOccasionConfig } from '../utils/occasions'
 import { playOccasionChime } from '../utils/giftSound'
 import AmbientParticles from './AmbientParticles'
@@ -17,13 +18,16 @@ function fireBurst(originY = 0.55) {
 // no extra animation library needed. Tap opens the box, confetti bursts, then
 // the message and (optional) photo fade in.
 export default function GiftBoxCard({ cardData, onBack }) {
-  const { recipientName, senderName, message, photoUrl, shareId, occasionType } = cardData
+  const { recipientName, senderName, message, photoUrl, shareId, occasionType, relationship } = cardData
   const occ = getOccasionConfig(occasionType || 'birthday')
 
   const [stage, setStage]     = useState('closed') // closed -> opening -> open
   const [isTyping, setIsTyping] = useState(false)
   const [copied, setCopied]   = useState(false)
   const [muted, setMuted]     = useState(() => localStorage.getItem('gb-sound-muted') === '1')
+  const [poem, setPoem]           = useState(null)
+  const [poemLoading, setPoemLoading] = useState(false)
+  const [poemError, setPoemError]     = useState('')
 
   const toggleMuted = useCallback(() => {
     setMuted(prev => {
@@ -50,6 +54,24 @@ export default function GiftBoxCard({ cardData, onBack }) {
       // clipboard blocked — silently ignore, the link is still shown via the button title
     }
   }, [shareUrl])
+
+  // Bonus reveal — a short AI-generated poem, fetched on demand so it
+  // never blocks or delays the main card reveal.
+  const handleGeneratePoem = useCallback(async () => {
+    if (poemLoading || poem) return
+    setPoemLoading(true)
+    setPoemError('')
+    try {
+      const res = await api.post('/api/generate-poem', {
+        recipientName, senderName, relationship, occasionType,
+      })
+      setPoem(res.data.poem)
+    } catch {
+      setPoemError("Couldn't write a poem right now — try again in a bit.")
+    } finally {
+      setPoemLoading(false)
+    }
+  }, [poemLoading, poem, recipientName, senderName, relationship, occasionType])
 
   const handleOpen = useCallback(() => {
     if (stage !== 'closed') return
@@ -124,6 +146,25 @@ export default function GiftBoxCard({ cardData, onBack }) {
             )}
             <p className="gb-title">{occ.cardTitle}</p>
             <p className={`gb-message${isTyping ? ' gb-message--typing' : ''}`} ref={kalimatRef} />
+
+            {!isTyping && (
+              <div className="gb-poem-zone">
+                {!poem && !poemLoading && (
+                  <button type="button" className="gb-poem-btn" onClick={handleGeneratePoem}>
+                    ✨ Write me a poem too
+                  </button>
+                )}
+                {poemLoading && <p className="gb-poem-loading">Writing a little poem…</p>}
+                {poemError && <p className="gb-poem-error">{poemError}</p>}
+                {poem && (
+                  <p className="gb-poem">
+                    {poem.split('\n').filter(Boolean).map((line, i) => (
+                      <span key={i}>{line}<br /></span>
+                    ))}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

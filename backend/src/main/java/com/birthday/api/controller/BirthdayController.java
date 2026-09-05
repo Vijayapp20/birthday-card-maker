@@ -48,6 +48,25 @@ public class BirthdayController {
     }
 
     /**
+     * POST /api/generate-poem
+     * Uses Spring AI + Groq to generate a short 4-line occasion poem.
+     * Optional bonus reveal shown after the Gift Box template is opened.
+     */
+    @PostMapping("/generate-poem")
+    public ResponseEntity<?> generatePoem(@RequestBody MessageRequest request) {
+        try {
+            log.info("Generating AI poem for: {} ({})", request.recipientName(), request.occasionType());
+            String poem = messageService.generatePoem(request);
+            log.info("AI poem generated successfully");
+            return ResponseEntity.ok(new PoemResponse(poem));
+        } catch (Exception e) {
+            log.error("Error generating poem: {}", e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Failed to generate poem: " + e.getMessage()));
+        }
+    }
+
+    /**
      * POST /api/upload
      * Accepts multipart image, uploads to Cloudinary, returns URL
      */
