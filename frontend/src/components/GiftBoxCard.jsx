@@ -28,6 +28,7 @@ export default function GiftBoxCard({ cardData, onBack }) {
   const [poem, setPoem]           = useState(null)
   const [poemLoading, setPoemLoading] = useState(false)
   const [poemError, setPoemError]     = useState('')
+  const [isSpeaking, setIsSpeaking]   = useState(false)
 
   const toggleMuted = useCallback(() => {
     setMuted(prev => {
@@ -72,6 +73,30 @@ export default function GiftBoxCard({ cardData, onBack }) {
       setPoemLoading(false)
     }
   }, [poemLoading, poem, recipientName, senderName, relationship, occasionType])
+
+  // Reads the poem aloud using the browser's built-in speech synthesis —
+  // no audio files, no library, works fully offline once loaded.
+  const handlePlayPoem = useCallback(() => {
+    if (!('speechSynthesis' in window) || !poem) return
+    if (isSpeaking) {
+      window.speechSynthesis.cancel()
+      setIsSpeaking(false)
+      return
+    }
+    const utterance = new SpeechSynthesisUtterance(poem.replace(/\n/g, '. '))
+    utterance.rate = 0.9
+    utterance.pitch = 1.05
+    utterance.onend = () => setIsSpeaking(false)
+    utterance.onerror = () => setIsSpeaking(false)
+    window.speechSynthesis.cancel() // stop anything already queued
+    window.speechSynthesis.speak(utterance)
+    setIsSpeaking(true)
+  }, [poem, isSpeaking])
+
+  // Stop any speech in progress if the card unmounts (e.g. user hits Back).
+  useEffect(() => {
+    return () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel() }
+  }, [])
 
   const handleOpen = useCallback(() => {
     if (stage !== 'closed') return
@@ -157,11 +182,18 @@ export default function GiftBoxCard({ cardData, onBack }) {
                 {poemLoading && <p className="gb-poem-loading">Writing a little poem…</p>}
                 {poemError && <p className="gb-poem-error">{poemError}</p>}
                 {poem && (
-                  <p className="gb-poem">
-                    {poem.split('\n').filter(Boolean).map((line, i) => (
-                      <span key={i}>{line}<br /></span>
-                    ))}
-                  </p>
+                  <>
+                    <p className="gb-poem">
+                      {poem.split('\n').filter(Boolean).map((line, i) => (
+                        <span key={i}>{line}<br /></span>
+                      ))}
+                    </p>
+                    {'speechSynthesis' in window && (
+                      <button type="button" className="gb-poem-play-btn" onClick={handlePlayPoem}>
+                        {isSpeaking ? '⏹ Stop' : '🔊 Play poem'}
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             )}
