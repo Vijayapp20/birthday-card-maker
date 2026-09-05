@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
 import { getOccasionConfig } from '../utils/occasions'
+import { playOccasionChime } from '../utils/giftSound'
 import AmbientParticles from './AmbientParticles'
 import './GiftBoxCard.css'
 
@@ -22,6 +23,15 @@ export default function GiftBoxCard({ cardData, onBack }) {
   const [stage, setStage]     = useState('closed') // closed -> opening -> open
   const [isTyping, setIsTyping] = useState(false)
   const [copied, setCopied]   = useState(false)
+  const [muted, setMuted]     = useState(() => localStorage.getItem('gb-sound-muted') === '1')
+
+  const toggleMuted = useCallback(() => {
+    setMuted(prev => {
+      const next = !prev
+      localStorage.setItem('gb-sound-muted', next ? '1' : '0')
+      return next
+    })
+  }, [])
 
   const kalimatRef = useRef(null)
   const boxRef      = useRef(null)
@@ -44,6 +54,7 @@ export default function GiftBoxCard({ cardData, onBack }) {
   const handleOpen = useCallback(() => {
     if (stage !== 'closed') return
     setStage('opening')
+    if (!muted) playOccasionChime(occasionType)
 
     // Small burst right as the lid pops, bigger burst once it's fully open
     setTimeout(() => {
@@ -53,7 +64,7 @@ export default function GiftBoxCard({ cardData, onBack }) {
     }, 250)
 
     setTimeout(() => setStage('open'), 900)
-  }, [stage])
+  }, [stage, muted, occasionType])
 
   useEffect(() => {
     if (stage !== 'open' || !kalimatRef.current) return
@@ -83,13 +94,15 @@ export default function GiftBoxCard({ cardData, onBack }) {
             <div
               ref={boxRef}
               className={`gb-box${stage === 'opening' ? ' gb-box--opening' : ''}`}
+              data-shape={occ.giftBoxShape || 'classic'}
               onClick={handleOpen}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleOpen()}
             >
               <div className="gb-lid">
-                <div className="gb-bow" />
+                {occ.giftBoxShape === 'heart' && <div className="gb-heart-shape" />}
+                {occ.giftBoxShape !== 'heart' && occ.giftBoxShape !== 'dome' && <div className="gb-bow" />}
               </div>
               <div className="gb-body">
                 <div className="gb-ribbon-v" />
@@ -118,6 +131,10 @@ export default function GiftBoxCard({ cardData, onBack }) {
       {onBack && (
         <button className="gb-back-toggle" onClick={onBack} title="Go back">← Back</button>
       )}
+
+      <button className="gb-mute-toggle" onClick={toggleMuted} title={muted ? 'Unmute chime' : 'Mute chime'}>
+        {muted ? '🔇' : '🔊'}
+      </button>
 
       {shareUrl && (
         <button className="gb-share-toggle" onClick={handleCopyLink} title="Copy shareable link">

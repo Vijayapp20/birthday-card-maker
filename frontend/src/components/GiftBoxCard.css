@@ -118,6 +118,39 @@
 .gb-bow::before { left: 0; transform: rotate(-45deg); }
 .gb-bow::after  { right: 0; border-radius: 50% 50% 0 50%; transform: rotate(45deg); }
 
+/* Heart-shaped accent — anniversary / engagement */
+.gb-heart-shape {
+  position: absolute;
+  left: 50%; top: -13px;
+  width: 30px; height: 26px;
+  transform: translateX(-50%);
+}
+.gb-heart-shape::before,
+.gb-heart-shape::after {
+  content: '';
+  position: absolute; top: 0;
+  width: 16px; height: 24px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 16px 16px 0 0;
+}
+.gb-heart-shape::before { left: 0;  transform: rotate(-45deg); transform-origin: 100% 100%; }
+.gb-heart-shape::after  { left: 0;  transform: rotate(45deg);  transform-origin: 0 100%; }
+
+/* Dome lid — graduation / new home / baby shower */
+.gb-box[data-shape="dome"] .gb-lid {
+  height: 58px;
+  border-radius: 50% 50% 8px 8px / 65% 65% 10% 10%;
+}
+.gb-box[data-shape="dome"] .gb-lid::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: -9px;
+  width: 16px; height: 16px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+}
+
 .gb-ribbon-h {
   position: absolute;
   top: 30px;
@@ -224,6 +257,19 @@
 .gb-share-toggle:hover, .gb-back-toggle:hover { background: rgba(255,255,255,0.28); }
 .gb-share-toggle { right: 16px; top: 70px; }
 .gb-back-toggle  { left: 16px; }
+
+.gb-mute-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 9999;
+  border: none; border-radius: 999px;
+  width: 44px; height: 44px;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff; cursor: pointer; transition: background 0.2s ease;
+}
+.gb-mute-toggle:hover { background: rgba(255,255,255,0.28); }
 
 .gb-footer {
   position: fixed;
