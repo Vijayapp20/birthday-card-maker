@@ -78,13 +78,14 @@ export default function GiftBoxCard({ cardData, onBack }) {
   }, [poemLoading, poem, recipientName, senderName, relationship, occasionType])
 
   // Reads the poem aloud using the browser's built-in speech synthesis,
-  // with a soft synthesized background pad playing underneath — no audio
-  // files, no library, works fully offline once loaded.
+  // with a soft synthesized background pad playing underneath — the pad
+  // "pulses" gently on every spoken word (via onboundary) so the music
+  // audibly follows the poem instead of just droning underneath it.
   const handlePlayPoem = useCallback(() => {
     if (!('speechSynthesis' in window) || !poem) return
     if (isSpeaking) {
       window.speechSynthesis.cancel()
-      stopAmbientRef.current?.()
+      stopAmbientRef.current?.stop()
       setIsSpeaking(false)
       return
     }
@@ -92,12 +93,15 @@ export default function GiftBoxCard({ cardData, onBack }) {
     utterance.lang = poemLang === 'ta' ? 'ta-IN' : 'en-US'
     utterance.rate = 0.9
     utterance.pitch = 1.05
+    utterance.onboundary = (e) => {
+      if (e.name === 'word' || e.charIndex !== undefined) stopAmbientRef.current?.pulse()
+    }
     utterance.onend = () => {
-      stopAmbientRef.current?.()
+      stopAmbientRef.current?.stop()
       setIsSpeaking(false)
     }
     utterance.onerror = () => {
-      stopAmbientRef.current?.()
+      stopAmbientRef.current?.stop()
       setIsSpeaking(false)
     }
     window.speechSynthesis.cancel() // stop anything already queued
@@ -110,7 +114,7 @@ export default function GiftBoxCard({ cardData, onBack }) {
   useEffect(() => {
     return () => {
       if ('speechSynthesis' in window) window.speechSynthesis.cancel()
-      stopAmbientRef.current?.()
+      stopAmbientRef.current?.stop()
     }
   }, [])
 

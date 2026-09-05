@@ -47,11 +47,21 @@ export function playOccasionChime(occasionType) {
 
 // Soft looping background pad meant to sit *under* speech (e.g. while the
 // poem is being read aloud). Three gently detuned sine waves through a
-// lowpass filter, kept quiet so it never competes with the voice. Returns
-// a stop() function that fades the pad out cleanly.
+// lowpass filter, kept quiet so it never competes with the voice.
+//
+// Returns { stop, pulse }:
+//   - pulse() nudges the volume up-and-back-down briefly — call it on each
+//     spoken word (via SpeechSynthesisUtterance's onboundary event) so the
+//     music audibly breathes in time with the poem instead of just droning
+//     underneath it.
+//   - stop() fades the whole pad out cleanly.
+const PAD_BASE_GAIN = 0.05
+const PAD_PULSE_GAIN = 0.09
+
 export function startAmbientPad(occasionType) {
+  const noop = () => {}
   const ctx = getContext()
-  if (!ctx) return () => {}
+  if (!ctx) return { stop: noop, pulse: noop }
   if (ctx.state === 'suspended') ctx.resume()
 
   const { notes } = NOTE_PATTERNS[occasionType] || DEFAULT_PATTERN
@@ -63,7 +73,7 @@ export function startAmbientPad(occasionType) {
 
   const masterGain = ctx.createGain()
   masterGain.gain.setValueAtTime(0, ctx.currentTime)
-  masterGain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 1.2) // slow fade-in, deliberately quiet
+  masterGain.gain.linearRampToValueAtTime(PAD_BASE_GAIN, ctx.currentTime + 1.2) // slow fade-in, deliberately quiet
   filter.connect(masterGain).connect(ctx.destination)
 
   const oscillators = [0, 7, -7].map((detuneCents) => {
@@ -77,7 +87,17 @@ export function startAmbientPad(occasionType) {
   })
 
   let stopped = false
-  return function stop() {
+
+  function pulse() {
+    if (stopped) return
+    const now = ctx.currentTime
+    masterGain.gain.cancelScheduledValues(now)
+    masterGain.gain.setValueAtTime(masterGain.gain.value, now)
+    masterGain.gain.linearRampToValueAtTime(PAD_PULSE_GAIN, now + 0.08)
+    masterGain.gain.linearRampToValueAtTime(PAD_BASE_GAIN, now + 0.35)
+  }
+
+  function stop() {
     if (stopped) return
     stopped = true
     const now = ctx.currentTime
@@ -86,4 +106,6 @@ export function startAmbientPad(occasionType) {
     masterGain.gain.linearRampToValueAtTime(0, now + 0.6)
     oscillators.forEach((osc) => osc.stop(now + 0.65))
   }
+
+  return { stop, pulse }
 }
