@@ -61,11 +61,12 @@ const PAD_PULSE_GAIN = 0.09
 export function startAmbientPad(occasionType) {
   const noop = () => {}
   const ctx = getContext()
-  if (!ctx) return { stop: noop, pulse: noop }
+  if (!ctx) return { stop: noop, pulse: noop, glideToStep: noop }
   if (ctx.state === 'suspended') ctx.resume()
 
   const { notes } = NOTE_PATTERNS[occasionType] || DEFAULT_PATTERN
-  const root = notes[0] / 2 // one octave down — a pad, not the chime itself
+  const scaleNotes = notes.map((f) => f / 2) // pad-octave version of the chime's scale
+  const root = scaleNotes[0]
 
   const filter = ctx.createBiquadFilter()
   filter.type = 'lowpass'
@@ -97,6 +98,20 @@ export function startAmbientPad(occasionType) {
     masterGain.gain.linearRampToValueAtTime(PAD_BASE_GAIN, now + 0.35)
   }
 
+  // Glides the pad's pitch to the next note in the occasion's scale — call
+  // this at the start of each poem line so the music's melody follows the
+  // reading, like a soft hum backing a singer.
+  function glideToStep(stepIndex) {
+    if (stopped) return
+    const target = scaleNotes[((stepIndex % scaleNotes.length) + scaleNotes.length) % scaleNotes.length]
+    const now = ctx.currentTime
+    oscillators.forEach((osc) => {
+      osc.frequency.cancelScheduledValues(now)
+      osc.frequency.setValueAtTime(osc.frequency.value, now)
+      osc.frequency.linearRampToValueAtTime(target, now + 0.4)
+    })
+  }
+
   function stop() {
     if (stopped) return
     stopped = true
@@ -107,5 +122,5 @@ export function startAmbientPad(occasionType) {
     oscillators.forEach((osc) => osc.stop(now + 0.65))
   }
 
-  return { stop, pulse }
+  return { stop, pulse, glideToStep }
 }

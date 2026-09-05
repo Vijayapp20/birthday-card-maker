@@ -77,10 +77,16 @@ export default function GiftBoxCard({ cardData, onBack }) {
     }
   }, [poemLoading, poem, recipientName, senderName, relationship, occasionType])
 
-  // Reads the poem aloud using the browser's built-in speech synthesis,
-  // with a soft synthesized background pad playing underneath — the pad
-  // "pulses" gently on every spoken word (via onboundary) so the music
-  // audibly follows the poem instead of just droning underneath it.
+  // A simple rise-and-resolve melodic contour applied across the poem's
+  // lines (repeats if there are more lines than steps) — this is what
+  // makes the reading feel sung rather than flatly spoken.
+  const MELODY_PITCH_STEPS = [1.0, 1.22, 1.15, 0.9]
+
+  // Reads the poem aloud line-by-line using the browser's built-in speech
+  // synthesis. Each line gets its own pitch from a melodic contour, and the
+  // ambient pad glides to a matching note right as that line starts — so
+  // the music's melody follows the reading like a soft backing hum, on top
+  // of the per-word volume pulse (via onboundary).
   const handlePlayPoem = useCallback(() => {
     if (!('speechSynthesis' in window) || !poem) return
     if (isSpeaking) {
@@ -89,24 +95,36 @@ export default function GiftBoxCard({ cardData, onBack }) {
       setIsSpeaking(false)
       return
     }
-    const utterance = new SpeechSynthesisUtterance(poem.replace(/\n/g, '. '))
-    utterance.lang = poemLang === 'ta' ? 'ta-IN' : 'en-US'
-    utterance.rate = 0.9
-    utterance.pitch = 1.05
-    utterance.onboundary = (e) => {
-      if (e.name === 'word' || e.charIndex !== undefined) stopAmbientRef.current?.pulse()
-    }
-    utterance.onend = () => {
-      stopAmbientRef.current?.stop()
-      setIsSpeaking(false)
-    }
-    utterance.onerror = () => {
-      stopAmbientRef.current?.stop()
-      setIsSpeaking(false)
-    }
+
+    const lines = poem.split('\n').map((l) => l.trim()).filter(Boolean)
+    if (lines.length === 0) return
+
     window.speechSynthesis.cancel() // stop anything already queued
     stopAmbientRef.current = startAmbientPad(occasionType)
-    window.speechSynthesis.speak(utterance)
+
+    lines.forEach((line, i) => {
+      const utterance = new SpeechSynthesisUtterance(line)
+      utterance.lang = poemLang === 'ta' ? 'ta-IN' : 'en-US'
+      utterance.rate = 0.82  // a touch slower — reads more like a sung verse
+      utterance.pitch = MELODY_PITCH_STEPS[i % MELODY_PITCH_STEPS.length]
+      utterance.onstart = () => stopAmbientRef.current?.glideToStep(i)
+      utterance.onboundary = (e) => {
+        if (e.name === 'word' || e.charIndex !== undefined) stopAmbientRef.current?.pulse()
+      }
+      const isLast = i === lines.length - 1
+      utterance.onend = () => {
+        if (isLast) {
+          stopAmbientRef.current?.stop()
+          setIsSpeaking(false)
+        }
+      }
+      utterance.onerror = () => {
+        stopAmbientRef.current?.stop()
+        setIsSpeaking(false)
+      }
+      window.speechSynthesis.speak(utterance) // browser queues these in order
+    })
+
     setIsSpeaking(true)
   }, [poem, poemLang, isSpeaking, occasionType])
 

@@ -40,7 +40,7 @@ public class MessageService {
             : "Write the poem in English.";
 
         return String.format(
-            "You are a poet who writes short, warm occasion poems.%n%n" +
+            "You are a poet who writes very short, sing-song occasion poems.%n%n" +
             "Write a SHORT rhyming poem for:%n" +
             "- Recipient: %s%n" +
             "- From: %s%n" +
@@ -51,7 +51,8 @@ public class MessageService {
             "- EXACTLY 4 lines, simple AABB or ABAB rhyme scheme%n" +
             "- Match the occasion exactly - do not mention unrelated occasions%n" +
             "- Use the recipient's name naturally in the poem%n" +
-            "- Keep each line short (under 10 words)%n" +
+            "- Each line MUST be under 5 words - short, punchy, nursery-rhyme length%n" +
+            "- This must read much shorter than a full message - just a quick, catchy little verse%n" +
             "- Do NOT add a title, quotes, or any explanation%n" +
             "- Write ONLY the 4 poem lines, separated by newlines",
             req.recipientName(),
