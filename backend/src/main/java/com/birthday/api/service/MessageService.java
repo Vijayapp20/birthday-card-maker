@@ -20,49 +20,6 @@ public class MessageService {
                 .content();
     }
 
-    public String generatePoem(MessageRequest request) {
-        return chatClient.prompt()
-                .user(buildPoemPrompt(request))
-                .call()
-                .content();
-    }
-
-    private String buildPoemPrompt(MessageRequest req) {
-        String occasion = (req.occasionType() != null && !req.occasionType().isBlank())
-                ? req.occasionType() : "celebration";
-
-        String occasionTone = getOccasionTone(occasion);
-        boolean tamil = req.language() != null &&
-                (req.language().equalsIgnoreCase("ta") || req.language().equalsIgnoreCase("tamil"));
-
-        String languageInstruction = tamil
-            ? "Write the poem ENTIRELY in the Tamil language, using Tamil script (not Tanglish, not transliteration)."
-            : "Write the poem in English.";
-
-        return String.format(
-            "You are a poet who writes very short, sing-song occasion poems.%n%n" +
-            "Write a SHORT rhyming poem for:%n" +
-            "- Recipient: %s%n" +
-            "- From: %s%n" +
-            "- Occasion: %s%n%n" +
-            "Tone: %s%n" +
-            "Language: %s%n%n" +
-            "STRICT RULES:%n" +
-            "- EXACTLY 4 lines, simple AABB or ABAB rhyme scheme%n" +
-            "- Match the occasion exactly - do not mention unrelated occasions%n" +
-            "- Use the recipient's name naturally in the poem%n" +
-            "- Each line MUST be under 5 words - short, punchy, nursery-rhyme length%n" +
-            "- This must read much shorter than a full message - just a quick, catchy little verse%n" +
-            "- Do NOT add a title, quotes, or any explanation%n" +
-            "- Write ONLY the 4 poem lines, separated by newlines",
-            req.recipientName(),
-            req.senderName(),
-            occasion,
-            occasionTone,
-            languageInstruction
-        );
-    }
-
     private String buildPrompt(MessageRequest req) {
         String occasion = (req.occasionType() != null && !req.occasionType().isBlank())
                 ? req.occasionType() : "celebration";

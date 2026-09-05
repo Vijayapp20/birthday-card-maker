@@ -14,13 +14,6 @@ const NOTE_PATTERNS = {
 }
 const DEFAULT_PATTERN = NOTE_PATTERNS.birthday
 
-// Exposes the note frequencies for an occasion so other audio modules
-// (e.g. the Tone.js-based poem backing track) can stay in the same key
-// as the box-open chime instead of picking their own notes.
-export function getOccasionScale(occasionType) {
-  return (NOTE_PATTERNS[occasionType] || DEFAULT_PATTERN).notes
-}
-
 let sharedCtx = null
 function getContext() {
   const AudioCtx = window.AudioContext || window.webkitAudioContext

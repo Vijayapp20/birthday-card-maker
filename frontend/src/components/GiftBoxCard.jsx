@@ -1,10 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import confetti from 'canvas-confetti'
 import TypeIt from 'typeit'
-import api from '../api'
 import { getOccasionConfig } from '../utils/occasions'
 import { playOccasionChime } from '../utils/giftSound'
-import { startMelodyBacking } from '../utils/giftMusic'
 import AmbientParticles from './AmbientParticles'
 import './GiftBoxCard.css'
 
@@ -19,19 +17,13 @@ function fireBurst(originY = 0.55) {
 // no extra animation library needed. Tap opens the box, confetti bursts, then
 // the message and (optional) photo fade in.
 export default function GiftBoxCard({ cardData, onBack }) {
-  const { recipientName, senderName, message, photoUrl, shareId, occasionType, relationship } = cardData
+  const { recipientName, senderName, message, photoUrl, shareId, occasionType } = cardData
   const occ = getOccasionConfig(occasionType || 'birthday')
 
   const [stage, setStage]     = useState('closed') // closed -> opening -> open
   const [isTyping, setIsTyping] = useState(false)
   const [copied, setCopied]   = useState(false)
   const [muted, setMuted]     = useState(() => localStorage.getItem('gb-sound-muted') === '1')
-  const [poem, setPoem]           = useState(null)
-  const [poemLoading, setPoemLoading] = useState(false)
-  const [poemError, setPoemError]     = useState('')
-  const [isSpeaking, setIsSpeaking]   = useState(false)
-  const [poemLang, setPoemLang]       = useState('en')
-  const stopAmbientRef = useRef(null)
 
   const toggleMuted = useCallback(() => {
     setMuted(prev => {
@@ -58,83 +50,6 @@ export default function GiftBoxCard({ cardData, onBack }) {
       // clipboard blocked — silently ignore, the link is still shown via the button title
     }
   }, [shareUrl])
-
-  // Bonus reveal — a short AI-generated poem, fetched on demand so it
-  // never blocks or delays the main card reveal.
-  const handleGeneratePoem = useCallback(async (lang) => {
-    if (poemLoading || poem) return
-    setPoemLang(lang)
-    setPoemLoading(true)
-    setPoemError('')
-    try {
-      const res = await api.post('/api/generate-poem', {
-        recipientName, senderName, relationship, occasionType, language: lang,
-      })
-      setPoem(res.data.poem)
-    } catch {
-      setPoemError("Couldn't write a poem right now — try again in a bit.")
-    } finally {
-      setPoemLoading(false)
-    }
-  }, [poemLoading, poem, recipientName, senderName, relationship, occasionType])
-
-  // A simple rise-and-resolve melodic contour applied across the poem's
-  // lines (repeats if there are more lines than steps) — this is what
-  // makes the reading feel sung rather than flatly spoken.
-  const MELODY_PITCH_STEPS = [1.0, 1.22, 1.15, 0.9]
-
-  // Reads the poem aloud line-by-line using the browser's built-in speech
-  // synthesis, backed by a real Tone.js instrument (see giftMusic.js) that
-  // plays a soft chord per line and light sparkle notes per word — so the
-  // reading feels like a small sung, accompanied verse rather than flat TTS.
-  const handlePlayPoem = useCallback(async () => {
-    if (!('speechSynthesis' in window) || !poem) return
-    if (isSpeaking) {
-      window.speechSynthesis.cancel()
-      stopAmbientRef.current?.stop()
-      setIsSpeaking(false)
-      return
-    }
-
-    const lines = poem.split('\n').map((l) => l.trim()).filter(Boolean)
-    if (lines.length === 0) return
-
-    window.speechSynthesis.cancel() // stop anything already queued
-    stopAmbientRef.current = await startMelodyBacking(occasionType)
-
-    lines.forEach((line, i) => {
-      const utterance = new SpeechSynthesisUtterance(line)
-      utterance.lang = poemLang === 'ta' ? 'ta-IN' : 'en-US'
-      utterance.rate = 0.82  // a touch slower — reads more like a sung verse
-      utterance.pitch = MELODY_PITCH_STEPS[i % MELODY_PITCH_STEPS.length]
-      utterance.onstart = () => stopAmbientRef.current?.glideToStep(i)
-      utterance.onboundary = (e) => {
-        if (e.name === 'word' || e.charIndex !== undefined) stopAmbientRef.current?.pulse()
-      }
-      const isLast = i === lines.length - 1
-      utterance.onend = () => {
-        if (isLast) {
-          stopAmbientRef.current?.stop()
-          setIsSpeaking(false)
-        }
-      }
-      utterance.onerror = () => {
-        stopAmbientRef.current?.stop()
-        setIsSpeaking(false)
-      }
-      window.speechSynthesis.speak(utterance) // browser queues these in order
-    })
-
-    setIsSpeaking(true)
-  }, [poem, poemLang, isSpeaking, occasionType])
-
-  // Stop any speech/ambient pad in progress if the card unmounts (e.g. user hits Back).
-  useEffect(() => {
-    return () => {
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel()
-      stopAmbientRef.current?.stop()
-    }
-  }, [])
 
   const handleOpen = useCallback(() => {
     if (stage !== 'closed') return
@@ -209,42 +124,6 @@ export default function GiftBoxCard({ cardData, onBack }) {
             )}
             <p className="gb-title">{occ.cardTitle}</p>
             <p className={`gb-message${isTyping ? ' gb-message--typing' : ''}`} ref={kalimatRef} />
-
-            {!isTyping && (
-              <div className="gb-poem-zone">
-                {!poem && !poemLoading && (
-                  <div className="gb-poem-lang-choice">
-                    <p className="gb-poem-prompt">✨ Want a little poem too?</p>
-                    <div className="gb-poem-lang-btns">
-                      <button type="button" className="gb-poem-btn" onClick={() => handleGeneratePoem('en')}>
-                        English
-                      </button>
-                      <button type="button" className="gb-poem-btn" onClick={() => handleGeneratePoem('ta')}>
-                        தமிழ்
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {poemLoading && <p className="gb-poem-loading">Writing a little poem…</p>}
-                {poemError && <p className="gb-poem-error">{poemError}</p>}
-                {poem && (
-                  <>
-                    <p className="gb-poem">
-                      {poem.split('\n').filter(Boolean).map((line, i) => (
-                        <span key={i}>{line}<br /></span>
-                      ))}
-                    </p>
-                    {'speechSynthesis' in window && (
-                      <button type="button" className="gb-poem-play-btn" onClick={handlePlayPoem}>
-                        {isSpeaking
-                          ? (poemLang === 'ta' ? '⏹ நிறுத்து' : '⏹ Stop')
-                          : (poemLang === 'ta' ? '🔊 கேட்க' : '🔊 Play poem')}
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
           </div>
         )}
       </div>
