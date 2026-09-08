@@ -74,18 +74,20 @@ export default function BirthdayForm({ onStart }) {
     if (!file) return
     setError('')
     setCropping(true)
-    // face-api.js is a heavy ML library — only fetch it once the user
-    // actually picks a photo, instead of bundling it into the initial
-    // form load that every visitor pays for.
-    const { autoCropToFace, PhotoValidationError } = await import('../utils/faceCrop')
+    // face-api.js and nsfwjs are both heavy ML libraries — only fetch them
+    // once the user actually picks a photo, instead of bundling either
+    // into the initial form load that every visitor pays for.
+    const [{ autoCropToFace, PhotoValidationError }, { assertPhotoIsSafe, NsfwValidationError }] =
+      await Promise.all([import('../utils/faceCrop'), import('../utils/nsfwFilter')])
     try {
+      await assertPhotoIsSafe(file) // throws NsfwValidationError if flagged — checked before anything else
       const { file: croppedFile, previewUrl, faceDetected: detected } = await autoCropToFace(file)
       setPhoto(croppedFile)
       setPhotoPreview(previewUrl)
       setFaceDetected(detected)
       setOriginalPhotoFile(file)
     } catch (err) {
-      if (err instanceof PhotoValidationError) {
+      if (err instanceof NsfwValidationError || err instanceof PhotoValidationError) {
         setError(err.message)
         setPhoto(null); setPhotoPreview(null); setFaceDetected(null); setOriginalPhotoFile(null)
       } else {
@@ -284,7 +286,7 @@ export default function BirthdayForm({ onStart }) {
             <label>📸 Photo <span>(optional)</span></label>
             <div className="photo-upload" onClick={() => !cropping && fileRef.current.click()}>
               {cropping
-                ? <div className="photo-placeholder"><span>⏳</span><p>Processing photo...</p></div>
+                ? <div className="photo-placeholder"><span>⏳</span><p>Checking &amp; processing photo...</p></div>
                 : photoPreview
                   ? <img src={photoPreview} alt="preview" className="photo-preview" />
                   : <div className="photo-placeholder">
