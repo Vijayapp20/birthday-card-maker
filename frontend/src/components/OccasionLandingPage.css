@@ -1,0 +1,47 @@
+.occasion-landing {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.occasion-seo-content {
+  padding: 32px 20px 8px;
+  text-align: center;
+  color: #fff;
+}
+
+.occasion-seo-content h1 {
+  font-size: 1.9rem;
+  margin-bottom: 12px;
+}
+
+.occasion-intro {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.9;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.occasion-samples {
+  margin-top: 20px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.occasion-samples h2 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.occasion-samples ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.occasion-samples li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+  opacity: 0.9;
+}

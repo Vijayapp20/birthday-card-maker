@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://celebration-wishes.vercel.app/sitemap.xml

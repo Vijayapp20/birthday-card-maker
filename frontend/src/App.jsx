@@ -1,8 +1,12 @@
 import { useState, useEffect, lazy, Suspense } from 'react' // v2
+import { Routes, Route } from 'react-router-dom'
 import { ParticlesProvider } from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
 import api from './api'
 import BirthdayForm from './components/BirthdayForm'
+import OccasionLandingPage from './components/OccasionLandingPage'
+import OccasionLinks from './components/OccasionLinks'
+import { SEO_PAGE_LIST } from './seoContent'
 
 // BirthdayCard pulls in three.js + vanta (~500KB) — not needed until the
 // form is actually submitted, so load it on demand instead of blocking
@@ -25,7 +29,12 @@ const CardLoadingFallback = (
   </div>
 )
 
-export default function App() {
+// Shared shell for every route: handles the ?card=ID shared-view lookup,
+// loading/error states, and rendering the finished card once a form
+// submits. `renderForm(onStart)` supplies whatever should show before
+// that — the plain form on "/", or an SEO landing page + form on an
+// occasion route like "/anniversary-wishes".
+function CelebrationShell({ renderForm }) {
   const [cardData, setCardData] = useState(null)
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
@@ -98,12 +107,50 @@ export default function App() {
       )
     }
 
-    return <BirthdayForm onStart={setCardData} />
+    return renderForm(setCardData)
   }
 
   return (
     <ParticlesProvider init={initParticles}>
       {renderContent()}
     </ParticlesProvider>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <CelebrationShell
+            renderForm={(onStart) => (
+              <>
+                <BirthdayForm onStart={onStart} />
+                <OccasionLinks />
+              </>
+            )}
+          />
+        }
+      />
+      {SEO_PAGE_LIST.map(seo => (
+        <Route
+          key={seo.key}
+          path={seo.path}
+          element={
+            <CelebrationShell
+              renderForm={(onStart) => (
+                <OccasionLandingPage seo={seo} occasionKey={seo.key} onStart={onStart} />
+              )}
+            />
+          }
+        />
+      ))}
+      {/* Unknown paths fall back to the home form rather than a dead 404 page */}
+      <Route
+        path="*"
+        element={<CelebrationShell renderForm={(onStart) => <BirthdayForm onStart={onStart} />} />}
+      />
+    </Routes>
   )
 }

@@ -38,12 +38,14 @@ const getCharacterForRelationship = (rel) => {
   return 'cilukba'
 }
 
-export default function BirthdayForm({ onStart }) {
+export default function BirthdayForm({ onStart, initialOccasion }) {
   const [recipientName, setRecipientName]           = useState('')
   const [senderName, setSenderName]                 = useState('')
   const [relationship, setRelationship]             = useState('')
   const [isCustomRelationship, setIsCustomRelationship] = useState(false)
-  const [occasionType, setOccasionType]             = useState('birthday')
+  // initialOccasion lets an SEO landing page (e.g. /anniversary-wishes) open
+  // the form pre-set to that occasion instead of always defaulting to birthday.
+  const [occasionType, setOccasionType]             = useState(initialOccasion || 'birthday')
   const [customOccasion, setCustomOccasion]         = useState('')
   const [messageType, setMessageType]               = useState('custom')
   const [customMessage, setCustomMessage]           = useState('')

@@ -1,0 +1,37 @@
+.occasion-links {
+  max-width: 640px;
+  margin: 24px auto 40px;
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.occasion-links h2 {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: 12px;
+}
+
+.occasion-links ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+.occasion-links a {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.occasion-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
