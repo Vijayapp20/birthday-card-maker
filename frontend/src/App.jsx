@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react' // v2
 import { Routes, Route } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { ParticlesProvider } from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
 import api from './api'
@@ -112,6 +113,12 @@ function CelebrationShell({ renderForm }) {
 
   return (
     <ParticlesProvider init={initParticles}>
+      {/* Shared cards hold personal photos/messages — keep them out of search results */}
+      {isSharedView && (
+        <Helmet>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
+      )}
       {renderContent()}
     </ParticlesProvider>
   )
