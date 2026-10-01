@@ -4,6 +4,7 @@ import com.birthday.api.dto.*;
 import com.birthday.api.service.CardService;
 import com.birthday.api.service.FileUploadService;
 import com.birthday.api.service.MessageService;
+import com.birthday.api.validation.RequestValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -22,28 +23,37 @@ public class BirthdayController {
     private final MessageService messageService;
     private final FileUploadService fileUploadService;
     private final CardService cardService;
+    private final RequestValidator validator;
 
-    public BirthdayController(MessageService messageService, FileUploadService fileUploadService, CardService cardService) {
+    public BirthdayController(MessageService messageService,
+                              FileUploadService fileUploadService,
+                              CardService cardService,
+                              RequestValidator validator) {
         this.messageService = messageService;
         this.fileUploadService = fileUploadService;
         this.cardService = cardService;
+        this.validator = validator;
     }
 
     /**
      * POST /api/generate-message
-     * Uses Spring AI + Groq to generate a personalised birthday message
+     * Uses Spring AI + Groq to generate a personalised message
      */
     @PostMapping("/generate-message")
     public ResponseEntity<?> generateMessage(@RequestBody MessageRequest request) {
         try {
-            log.info("Generating AI message for: {} ({})", request.recipientName(), request.relationship());
-            String message = messageService.generateMessage(request);
-            log.info("AI message generated successfully");
+            MessageRequest clean = validator.validate(request);
+            log.info("Generating AI message (occasion={}, relationship={})",
+                    clean.occasionType(), clean.relationship());
+            String message = messageService.generateMessage(clean);
             return ResponseEntity.ok(new MessageResponse(message));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            log.error("Error generating message: {}", e.getMessage());
+            // Log the real cause on the server, but never send internals to the client
+            log.error("Error generating message", e);
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Failed to generate message: " + e.getMessage()));
+                    .body(Map.of("error", "Could not generate a message right now. Please try again."));
         }
     }
 
@@ -54,17 +64,15 @@ public class BirthdayController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadPhoto(@RequestParam("file") MultipartFile file) {
         try {
-            log.info("Uploading file: {}, size: {} bytes", file.getOriginalFilename(), file.getSize());
             UploadResponse response = fileUploadService.saveFile(file);
-            log.info("File saved: {}", response.url());
+            log.info("Photo uploaded ({} bytes)", file.getSize());
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            log.error("Upload error: {}", e.getMessage());
+            log.error("Upload error", e);
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Failed to upload file: " + e.getMessage()));
+                    .body(Map.of("error", "Could not upload the photo right now. Please try again."));
         }
     }
 
@@ -75,13 +83,15 @@ public class BirthdayController {
     @PostMapping("/cards")
     public ResponseEntity<?> createCard(@RequestBody CardRequest request) {
         try {
-            CardResponse response = cardService.saveCard(request);
+            CardResponse response = cardService.saveCard(validator.validate(request));
             log.info("Card saved with id: {}", response.getId());
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            log.error("Error saving card: {}", e.getMessage());
+            log.error("Error saving card", e);
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Failed to save card: " + e.getMessage()));
+                    .body(Map.of("error", "Could not save the card right now. Please try again."));
         }
     }
 
@@ -91,15 +101,18 @@ public class BirthdayController {
      */
     @GetMapping("/cards/{id}")
     public ResponseEntity<?> getCard(@PathVariable String id) {
+        if (!validator.isValidCardId(id)) {
+            return ResponseEntity.notFound().build();
+        }
         try {
             CardResponse response = cardService.getCard(id);
             return ResponseEntity.ok(response);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            log.error("Error fetching card: {}", e.getMessage());
+            log.error("Error fetching card", e);
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Failed to fetch card: " + e.getMessage()));
+                    .body(Map.of("error", "Could not load the card right now. Please try again."));
         }
     }
 
@@ -109,7 +122,6 @@ public class BirthdayController {
      */
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of("status", "UP", "service", "Birthday API"));
-    
+        return ResponseEntity.ok(Map.of("status", "UP", "service", "Celebration Wishes API"));
     }
 }

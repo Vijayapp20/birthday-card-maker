@@ -1,4 +1,7 @@
 {
+  "redirects": [
+    { "source": "/new-home-wishes", "destination": "/housewarming-wishes", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/((?!api/|.*\\..*).*)", "destination": "/index.html" }
   ]

@@ -12,6 +12,7 @@ const OCCASIONS = [
   { key: 'newhome',     label: '🏠 New Home'     },
   { key: 'babyshower',  label: '👶 Baby Shower'  },
   { key: 'engagement',  label: '💑 Engagement'   },
+  { key: 'wedding',     label: '💒 Wedding'      },
   { key: 'custom',      label: '🎉 Custom'       },
 ]
 

@@ -9,6 +9,7 @@ export const OCCASION_CONFIG = {
   newhome:     { cardTitle: 'Welcome to Your New Home! 🏠',  slide1: 'Hey {name} 🏠',    slide3: 'A new place to call home! 🏠',     slide5: 'Wishing you warmth and joy\nin your beautiful new home 🌟', particleColor: '#ffd9a0', giftBoxShape: 'dome',    vantaColors: { highlightColor: 0xffcf8a, midtoneColor: 0xd97b2a, lowlightColor: 0x2a1505, baseColor: 0x180b03 } },
   babyshower:  { cardTitle: 'Welcome Little One! 👶',        slide1: 'Hey {name} 🍼',    slide3: 'A new blessing arrives! 👶',       slide5: 'Wishing your family\njoy and love always 💕', particleColor: '#cfe0ff', giftBoxShape: 'dome',    vantaColors: { highlightColor: 0xbcd4ff, midtoneColor: 0x6a9be0, lowlightColor: 0x0d1830, baseColor: 0x060d1a } },
   engagement:  { cardTitle: 'Congratulations! 💑',           slide1: 'Hey {name} 💑',    slide3: 'A beautiful journey begins! 💑',   slide5: 'Wishing you a lifetime\nof love and happiness together 💕', particleColor: '#f0d9b0', giftBoxShape: 'heart',   vantaColors: { highlightColor: 0xf0d2a0, midtoneColor: 0xd4a05a, lowlightColor: 0x2a1a08, baseColor: 0x160d04 } },
+  wedding:     { cardTitle: 'Happy Wedding Day! 💒',      slide1: 'Hey {name} 💐',    slide3: 'Two hearts, one journey! 💒',      slide5: 'Wishing you a lifetime of love\nand happiness together 💐', particleColor: '#ffe3ad', giftBoxShape: 'heart',   vantaColors: { highlightColor: 0xffdca0, midtoneColor: 0xd99a4a, lowlightColor: 0x2a1a08, baseColor: 0x160d04 } },
 }
 
 const DEFAULT_PARTICLE_COLOR = '#ffffff'

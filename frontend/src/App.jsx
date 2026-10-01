@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react' // v2
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ParticlesProvider } from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
@@ -7,7 +7,7 @@ import api from './api'
 import BirthdayForm from './components/BirthdayForm'
 import OccasionLandingPage from './components/OccasionLandingPage'
 import OccasionLinks from './components/OccasionLinks'
-import { SEO_PAGE_LIST } from './seoContent'
+import { SEO_PAGE_LIST, LEGACY_REDIRECTS } from './seoContent'
 
 // BirthdayCard pulls in three.js + vanta (~500KB) — not needed until the
 // form is actually submitted, so load it on demand instead of blocking
@@ -152,6 +152,10 @@ export default function App() {
             />
           }
         />
+      ))}
+      {/* Old URLs (e.g. /new-home-wishes) — vercel.json sends the real 301 in production */}
+      {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
+        <Route key={from} path={from} element={<Navigate to={to} replace />} />
       ))}
       {/* Unknown paths fall back to the home form rather than a dead 404 page */}
       <Route
