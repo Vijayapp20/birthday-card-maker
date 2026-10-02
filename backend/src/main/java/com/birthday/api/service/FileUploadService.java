@@ -24,10 +24,14 @@ public class FileUploadService {
 
     private final Cloudinary cloudinary;
     private final PhotoUploadRepository photoUploadRepository;
+    private final ImageModerationService moderationService;
 
-    public FileUploadService(Cloudinary cloudinary, PhotoUploadRepository photoUploadRepository) {
+    public FileUploadService(Cloudinary cloudinary,
+                             PhotoUploadRepository photoUploadRepository,
+                             ImageModerationService moderationService) {
         this.cloudinary = cloudinary;
         this.photoUploadRepository = photoUploadRepository;
+        this.moderationService = moderationService;
     }
 
     public UploadResponse saveFile(MultipartFile file) throws IOException {
@@ -45,6 +49,9 @@ public class FileUploadService {
         if (detectedType == null) {
             throw new IllegalArgumentException("Only JPG, PNG or WebP photos are allowed.");
         }
+
+        // Refuse adult (18+) and graphic/bloody photos BEFORE anything is stored.
+        moderationService.assertSafe(bytes, detectedType);
 
         String publicId = "birthday-cards/" + UUID.randomUUID();
 
