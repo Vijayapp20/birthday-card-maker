@@ -46,7 +46,14 @@ public class BirthdayController {
             log.info("Generating AI message (occasion={}, relationship={})",
                     clean.occasionType(), clean.relationship());
             String message = messageService.generateMessage(clean);
-            return ResponseEntity.ok(new MessageResponse(message));
+            log.info("AI message generated (length={} chars)", message == null ? 0 : message.length());
+            if (message == null || message.isBlank()) {
+                // The model answered but produced no text (e.g. a reasoning model ran out of tokens)
+                log.warn("AI returned an empty message - check GROQ_MODEL and max-tokens");
+                return ResponseEntity.internalServerError()
+                        .body(Map.of("error", "Could not generate a message right now. Please try again."));
+            }
+            return ResponseEntity.ok(new MessageResponse(message.trim()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
