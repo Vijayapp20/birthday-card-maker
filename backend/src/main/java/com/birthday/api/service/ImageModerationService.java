@@ -142,7 +142,8 @@ public class ImageModerationService {
         body.put("model", model);
         body.put("messages", List.of(Map.of("role", "user", "content", List.of(textPart, imagePart))));
         body.put("temperature", 0);
-        body.put("max_tokens", 2000);
+        // Groq reserves max_tokens against a tight output-tokens-per-minute limit, and the verdict is ~20 tokens.
+        body.put("max_tokens", 300);
         if (tuned) {
             body.put("reasoning_effort", "none");
             body.put("response_format", Map.of("type", "json_object"));

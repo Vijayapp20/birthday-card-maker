@@ -1,11 +1,16 @@
 package com.birthday.api.service;
 
 import com.birthday.api.dto.MessageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MessageService {
+
+    private static final Logger log = LoggerFactory.getLogger(MessageService.class);
+    private static final int MAX_ATTEMPTS = 3;
 
     private final ChatClient chatClient;
 
@@ -14,10 +19,16 @@ public class MessageService {
     }
 
     public String generateMessage(MessageRequest request) {
-        return chatClient.prompt()
-                .user(buildPrompt(request))
-                .call()
-                .content();
+        String prompt = buildPrompt(request);
+        // A reasoning model sometimes spends its whole token budget "thinking" and returns no text - try again.
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            String text = chatClient.prompt().user(prompt).call().content();
+            if (text != null && !text.isBlank()) {
+                return text;
+            }
+            log.warn("AI returned an empty message (attempt {}/{})", attempt, MAX_ATTEMPTS);
+        }
+        return "";
     }
 
     private String buildPrompt(MessageRequest req) {
